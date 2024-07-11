@@ -1,14 +1,14 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import HeaderLink from './HeaderLink.vue'
 import HeaderDropdown from './HeaderDropdown.vue'
+import ThemeToggle from './HeaderThemeToggle.vue'
 import { RouterLink } from 'vue-router'
 import VueJobsLogo from '../../assets/vueJobsLogo.svg'
 </script>
 
 <template>
     <nav
-        class="lg:px-16 px-6 bg-white shadow-md flex flex-wrap items-center lg:py-0 py-2 w-screen justify-between"
+        class="lg:px-16 px-6 bg-white dark:bg-gray-800 shadow-md flex flex-wrap items-center lg:py-0 py-2 w-screen justify-between"
     >
         <div class="flex items-center">
             <RouterLink to="/" class="flex text-lg font-switzer">
@@ -21,7 +21,7 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
         </div>
         <label for="menu-toggle" class="cursor-pointer lg:hidden block">
             <svg
-                class="fill-current text-gray-900"
+                class="fill-current text-gray-900 dark:text-gray-100"
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
                 height="20"
@@ -36,25 +36,38 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
             <div
                 class="text-xl text-center items-center gap-x-5 pt-4 md:gap-x-4 lg:text-lg lg:flex lg:pt-0 font-switzer"
             >
-                <HeaderLink to="/jobs" text="Jobs" class="py-2 lg:py-0 text-gray-600" />
+                <HeaderLink
+                    to="/jobs"
+                    text="Jobs"
+                    class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
+                />
                 <HeaderLink
                     to="/hire-vuejs-developers"
                     text="Hire Vue.Js Developers"
-                    class="py-2 lg:py-0 text-gray-600"
+                    class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                 />
                 <HeaderLink
                     to="/consultants"
                     text="Consultants"
-                    class="py-2 lg:py-0 text-gray-600"
+                    class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                 />
-                <HeaderLink to="/job-alerts" text="Job Alerts" class="py-2 lg:py-0 text-gray-600" />
-                <HeaderLink to="/learn" text="Learn" class="py-2 lg:py-0 text-gray-600" />
+                <HeaderLink
+                    to="/job-alerts"
+                    text="Job Alerts"
+                    class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
+                />
+                <HeaderLink
+                    to="/learn"
+                    text="Learn"
+                    class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
+                />
             </div>
-
             <div
-                class="flex flex-col lg:flex-row items-center gap-x-5 pt-4 text-gray-600 md:gap-x-4 lg:pt-0"
+                class="flex flex-row justify-center items-center gap-x-5 pt-4 text-gray-600 md:gap-x-4 lg:pt-0"
             >
-                <button class="bg-slate-100 px-4 py-2 rounded-md">Hire a consultant</button>
+                <button class="bg-slate-100 dark:bg-gray-600 dark:text-white px-4 py-2 rounded-md">
+                    Hire a consultant
+                </button>
                 <button class="bg-yellow-400 px-4 py-2 rounded-md">Post a job</button>
                 <!-- login button with dissaper if logged in -->
                 <!-- <button class="bg-slate-100 px-4 py-2 rounded-md focus:outline-none focus:ring-2">
@@ -62,6 +75,7 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
                 </button> -->
                 <!-- instead this will show witha dropdown -->
                 <HeaderDropdown />
+                <ThemeToggle />
             </div>
         </div>
     </nav>
@@ -69,10 +83,15 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
 
 <style>
 #menu-toggle:checked + #menu {
-    display: block;
+    display: flex;
+    flex-direction: column;
+}
+@media (min-width: 1024px) {
+    #menu-toggle:checked + #menu {
+        flex-direction: row;
+    }
 }
 .dropdown:focus-within .dropdown-menu {
-    /* @apply block; */
     display: block;
 }
 </style>
