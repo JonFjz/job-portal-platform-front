@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 
 const theme = ref('light')
 
-// me pa a o nlocal
+// Load theme from localStorage on mount
 onMounted(() => {
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme) {
@@ -12,12 +12,13 @@ onMounted(() => {
     }
 })
 
-// me ndrru nlocal
+// Save theme to localStorage and toggle class on watch
 watch(theme, (newTheme) => {
     localStorage.setItem('theme', newTheme)
     document.documentElement.classList.toggle('dark', newTheme === 'dark')
 })
 
+// Toggle theme function
 const toggleTheme = () => {
     theme.value = theme.value === 'light' ? 'dark' : 'light'
 }

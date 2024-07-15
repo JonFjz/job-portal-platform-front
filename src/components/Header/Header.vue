@@ -8,7 +8,7 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
 
 <template>
     <nav
-        class="lg:px-16 px-6 bg-white dark:bg-gray-800 shadow-md flex flex-wrap items-center lg:py-0 py-2 w-screen justify-between"
+        class="lg:px-16 px-6 bg-white dark:bg-gray-800 shadow-md flex flex-wrap items-center lg:py-0 py-2 w-full justify-between"
     >
         <div class="flex items-center">
             <RouterLink to="/" class="flex text-lg font-switzer">
