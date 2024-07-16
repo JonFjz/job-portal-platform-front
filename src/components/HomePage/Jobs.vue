@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import JobCard from './JobsCard.vue'
+import JobCard from './JobCard.vue'
 
 // Data variables
 const jobs = ref([])
@@ -77,7 +77,7 @@ const nextPage = () => {
 
         <!-- Job Cards section -->
         <div class="container mx-auto p-4">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-3 lg:grid-rows-2">
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-2">
                 <!-- Job cards here -->
                 <JobCard v-for="job in jobs" :key="job.id" :job="job" />
             </div>

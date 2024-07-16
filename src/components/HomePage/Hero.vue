@@ -23,7 +23,7 @@
                 Discover companies looking to hire Vue.js developers and connect with them.
             </p>
         </div>
-        <div class="hidden lg:block bg-gray-100 py-5">
+        <div class="hidden lg:block bg-gray-100 dark:bg-gray-700 py-5">
             <div class="flex justify-center space-x-8 overflow-x-auto px-4">
                 <div class="mt-4 text-center text-gray-500 h-12">Trusted by</div>
                 <a href="https://www.apple.com" target="_blank" rel="noopener noreferrer">
