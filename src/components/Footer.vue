@@ -6,7 +6,7 @@ import DiscordLogo from '@/assets/discordLogo.svg'
 </script>
 
 <template>
-    <footer class="bg-slate-800 text-white p-4">
+    <footer class="bg-slate-800 dark:bg-gray-700 text-white p-4">
         <div class="flex-col items-center">
             <ul
                 class="grid grid-cols-2 gap-4 w-full md:flex md:flex-row md:justify-around md:gap-8 md:w-full py-12 lg:py-24"
@@ -81,7 +81,7 @@ import DiscordLogo from '@/assets/discordLogo.svg'
             </ul>
         </div>
     </footer>
-    <div class="bg-slate-700 w-fill">
+    <div class="bg-slate-700 dark:bg-gray-900 w-fill">
         <div class="flex flex-col items-start md:flex-row md:justify-between py-4 px-8">
             <div>Copyright © 2024 - All rights reserved</div>
             <div>Terms of use – Privacy policy</div>
