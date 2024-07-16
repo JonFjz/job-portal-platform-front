@@ -3,14 +3,11 @@ import HomeView from '../views/HomeView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import LoginView from '@/views/forms/LoginView.vue'
 import RegisterView from '@/views/forms/RegisterView.vue'
+import JobDetailView from '@/views/JobDetailView.vue' // Import JobDetailView
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-        {
-            path: '/:catchAll(.*)',
-            redirect: { name: 'home' }
-        },
         {
             path: '/',
             name: 'home',
@@ -20,10 +17,6 @@ const router = createRouter({
             path: '/profile',
             name: 'profile',
             component: ProfileView
-            // route level code-splitting
-            // this generates a separate chunk (About.[hash].js) for this route
-            // which is lazy-loaded when the route is visited.
-            // component: () => import('../views/AboutView.vue')
         },
         {
             path: '/login',
@@ -34,6 +27,16 @@ const router = createRouter({
             path: '/register',
             name: 'register',
             component: RegisterView
+        },
+        {
+            path: '/jobs/:company-:title',
+            name: 'job-detail',
+            component: JobDetailView,
+            props: (route) => ({ company: route.params.company, title: route.params.title })
+        },
+        {
+            path: '/:catchAll(.*)',
+            redirect: { name: 'home' }
         }
     ]
 })
