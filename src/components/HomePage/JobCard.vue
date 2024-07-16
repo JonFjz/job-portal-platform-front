@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue'
-import { defineProps } from 'vue'
+import { ref, defineProps } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
     job: Object // Define the prop for job, which is an object containing id and title
@@ -8,11 +8,22 @@ const props = defineProps({
 
 // Create a ref to manage the bookmark state
 const isBookmarked = ref(false)
+const router = useRouter()
 
 // Method to handle the bookmark click
 const toggleBookmark = () => {
     isBookmarked.value = !isBookmarked.value
     console.log(props.job.id)
+}
+
+// Method to navigate to the job detail page
+const navigateToJobDetail = () => {
+    const company = 'company-name' // Replace with actual company name if available
+    const formattedTitle = props.job.title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters except hyphens and spaces
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+    router.push(`/jobs/${company}-${formattedTitle}`)
 }
 </script>
 
@@ -81,7 +92,10 @@ const toggleBookmark = () => {
             <!-- know more button and part/full-time -->
             <div class="flex flex-row items-center justify-between w-full pt-4 pb-1">
                 <div class="flex items-center justify-center">
-                    <button class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600">
+                    <button
+                        @click="navigateToJobDetail"
+                        class="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
+                    >
                         Know More
                     </button>
                 </div>
