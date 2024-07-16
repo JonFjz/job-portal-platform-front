@@ -70,10 +70,10 @@ const toggleBookmark = () => {
             </div>
             <!-- job title and decription -->
             <div class="flex flex-col items-start justify-start text-gray-600 dark:text-gray-300">
-                <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-300">
-                    Job Position Title
+                <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-300">
+                    {{ props.job.title }}
                 </h1>
-                <h2 class="text-xl text-gray-500 dark:text-gray-300 line-clamp-3">
+                <h2 class="text-lg text-gray-500 dark:text-gray-300 line-clamp-3">
                     Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maxime ratione minima
                     vero asperiores ducimus similique deleniti libero magni reiciendis tempora.
                 </h2>

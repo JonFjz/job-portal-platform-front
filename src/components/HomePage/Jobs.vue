@@ -10,8 +10,8 @@ let totalPages = ref(1)
 
 // Dummy data for demonstration
 const dummyJobs = ref([
-    { id: 1, title: 'Job 1' },
-    { id: 2, title: 'Job 2' },
+    { id: 1, title: 'Vue.js Dev (4 yrs xp;Remote @ $140k/year)' },
+    { id: 2, title: 'Senior Front-end Engineer - Vue Project (Hybrid)' },
     { id: 3, title: 'Job 3' },
     { id: 4, title: 'Job 4' },
     { id: 5, title: 'Job 5' },
