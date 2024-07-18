@@ -1,34 +1,24 @@
 <script setup>
 import { ref, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
+import Bookmark from '@/components/Bookmark.vue'
 
 const props = defineProps({
     job: Object // Define the prop for job, which is an object containing id and title
 })
 
 // Create a ref to manage the bookmark state
-const isBookmarked = ref(false)
 const router = useRouter()
-
-// Method to handle the bookmark click
-const toggleBookmark = () => {
-    isBookmarked.value = !isBookmarked.value
-    console.log(props.job.id)
-}
 
 // Method to navigate to the job detail page
 const navigateToJobDetail = () => {
-    const company = 'company-name' // Replace with actual company name if available
-    const formattedTitle = props.job.title
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '') // Remove special characters except hyphens and spaces
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-    router.push(`/jobs/${company}-${formattedTitle}`)
+    router.push(`/jobs/${props.job.id}`)
 }
 </script>
 
 <template>
-    <div href="#" class="relative">
+    <!-- <div href="#" class="relative"> -->
+    <div class="relative">
         <div
             class="flex flex-col items-start justify-start p-4 w-full h-fit bg-white dark:bg-gray-700 border-gray-400 dark:border-green-500 border-2 rounded-xl overflow-hidden transition-all duration-300 hover:border-green-500 hover:border-l-8"
         >
@@ -46,21 +36,7 @@ const navigateToJobDetail = () => {
                     </div>
                 </div>
                 <!-- bookmark icon -->
-                <div class="flex items-center justify-center">
-                    <svg
-                        @click="toggleBookmark"
-                        :fill="isBookmarked ? '#eab308' : 'none'"
-                        :class="{ 'text-yellow-500': isBookmarked, 'text-gray-500': !isBookmarked }"
-                        class="h-8 w-8 cursor-pointer dark:text-gray-300 text-gray-500 transition-all duration-150"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                    </svg>
-                </div>
+                <Bookmark :jobId="props.job.id" />
             </div>
             <!-- tags -->
             <div class="flex items-center justify-start">

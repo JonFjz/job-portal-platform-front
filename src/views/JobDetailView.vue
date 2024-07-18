@@ -1,18 +1,15 @@
 <script setup>
-import { defineProps } from 'vue'
-
-const props = defineProps({
-    company: String,
-    title: String
-})
+import SubscribeForm from '@/components/SubscribeForm.vue'
+import JobInformation from '@/components/JobDetail/JobInformation.vue'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
 </script>
 
 <template>
-    <div>
-        <h1>{{ title }}</h1>
-        <h2>{{ company }}</h2>
-        <!-- Add more job details here -->
-    </div>
+    <DefaultLayout>
+        <JobInformation :job="jobDetails" />
+
+        <SubscribeForm />
+    </DefaultLayout>
 </template>
 
 <style scoped></style>
