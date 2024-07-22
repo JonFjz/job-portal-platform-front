@@ -1,0 +1,38 @@
+{
+  "users": [
+    {
+      "id": 1721683510616,
+      "name": "drila",
+      "email": "drilathedev10@life.com",
+      "password": "101010",
+      "role": "employer"
+    },
+    {
+      "id": 1721683675063,
+      "name": "drd",
+      "email": "ddd@life.com",
+      "password": "101010",
+      "role": "jobseeker"
+    }
+  ],
+  "applications": [],
+  "bookmarks": [
+    {
+      "id": "e918",
+      "jobId": "7ab3"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "7ab3",
+      "title": "FrontEnd Engineer",
+      "company": "Gjirafa",
+      "location": "Prishtine",
+      "salary": "50,000",
+      "remote": true,
+      "hybrid": true,
+      "featured": true,
+      "logo": "https://cdn6.aptoide.com/imgs/a/e/8/ae850e1836e6a9fcee2a23aef27185a7_icon.png"
+    }
+  ]
+}
