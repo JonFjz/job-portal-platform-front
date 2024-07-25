@@ -43,17 +43,12 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
                         class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                     />
                     <HeaderLink
-                        to="/hire-vuejs-developers"
+                        to="/hire-dev"
                         text="Hire Vue.Js Developers"
                         class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                     />
                     <HeaderLink
-                        to="/consultants"
-                        text="Consultants"
-                        class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
-                    />
-                    <HeaderLink
-                        to="/job-alerts"
+                        to="/job-alert"
                         text="Job Alerts"
                         class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                     />
@@ -66,11 +61,6 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
                 <div
                     class="flex flex-row justify-center items-center gap-x-5 pt-4 text-gray-600 md:gap-x-4 lg:pt-0"
                 >
-                    <button
-                        class="bg-slate-100 dark:bg-gray-600 dark:text-white px-4 py-2 rounded-md"
-                    >
-                        Hire a consultant
-                    </button>
                     <button class="bg-yellow-400 px-4 py-2 rounded-md">Post a job</button>
                     <!-- login button with dissaper if logged in -->
                     <!-- <button class="bg-slate-100 px-4 py-2 rounded-md focus:outline-none focus:ring-2">
