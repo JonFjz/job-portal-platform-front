@@ -1,24 +1,38 @@
 {
   "users": [
     {
-      "id": 1721683510616,
+      "id": "1721683510616",
       "name": "drila",
       "email": "drilathedev10@life.com",
       "password": "101010",
       "role": "employer"
     },
     {
-      "id": 1721683675063,
+      "id": "1721683675063",
       "name": "drd",
       "email": "ddd@life.com",
       "password": "101010",
       "role": "jobseeker"
+    },
+    {
+      "id": "1721807270821",
+      "name": "guri",
+      "email": "gurisokoli@gmail.com",
+      "password": "gurisokoli",
+      "role": "jobseeker"
+    },
+    {
+      "id": "1721807376444",
+      "name": "gurie",
+      "email": "gurisokolie@gmail.com",
+      "password": "gurisokolie",
+      "role": "employer"
     }
   ],
   "applications": [],
   "bookmarks": [
     {
-      "id": "e918",
+      "id": "6e3e",
       "jobId": "7ab3"
     }
   ],
