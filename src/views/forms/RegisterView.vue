@@ -17,6 +17,7 @@ const confirmPassword = ref('')
 const termsAgreed = ref(false)
 const role = ref('jobseeker') // default to jobseeker
 const dropdownVisible = ref(false)
+const companyName = ref('')
 const router = useRouter()
 
 // function to toggle the visibility of the role selection dropdown
@@ -43,17 +44,22 @@ const registerUser = async () => {
         const newUser = {
             // using timestamp as unique ID and also stringify it
             id: Date.now().toString(),
-
             name: name.value,
             email: email.value,
             password: password.value,
-            role: role.value // user's selected role
+            role: role.value,
+            companyName: role.value === 'employer' ? companyName.value : '', // include company name for employers
+            employerId: role.value === 'employer' ? Date.now().toString() : '' // generate an employerId if role is employer
         }
 
         try {
             // make a POST request to register the user
             await axios.post('http://localhost:3000/users', newUser)
             alert('Registration successful')
+            // Store the employerId in localStorage if role is employer
+            if (role.value === 'employer') {
+                localStorage.setItem('employerId', newUser.employerId)
+            }
             router.push('/') // redirect to homepage after successful registration
         } catch (error) {
             console.error('There was an error registering the user!', error)
@@ -61,8 +67,6 @@ const registerUser = async () => {
     }
 }
 </script>
-
-<style scoped></style>
 
 <template>
     <div class="bg-white flex items-center justify-center">
@@ -149,6 +153,7 @@ const registerUser = async () => {
                         placeholder="Confirm Password"
                     />
                 </div>
+              
                 <div class="form-field relative mb-7">
                     <label class="flex items-center justify-between mb-1">
                         <div class="form-label font-medium text-sm">Select your role</div>
@@ -187,26 +192,7 @@ const registerUser = async () => {
                                     @click="selectRole('jobseeker')"
                                     class="flex p-2 rounded hover:bg-gray-100 cursor-pointer"
                                 >
-                                    <div class="flex items-center h-5">
-                                        <input
-                                            type="radio"
-                                            v-model="role"
-                                            value="jobseeker"
-                                            id="role-jobseeker"
-                                            class="w-4 h-4 text-teal-500 bg-gray-100 border-gray-300 focus:ring-teal-500"
-                                        />
-                                    </div>
-                                    <div class="ms-2 text-sm">
-                                        <label
-                                            for="role-jobseeker"
-                                            class="font-medium text-gray-900"
-                                        >
-                                            Jobseeker
-                                            <p class="text-xs font-normal text-gray-500">
-                                                Find and apply for jobs.
-                                            </p>
-                                        </label>
-                                    </div>
+                                    <div class="ms-3">Jobseeker</div>
                                 </div>
                             </li>
                             <li>
@@ -214,61 +200,51 @@ const registerUser = async () => {
                                     @click="selectRole('employer')"
                                     class="flex p-2 rounded hover:bg-gray-100 cursor-pointer"
                                 >
-                                    <div class="flex items-center h-5">
-                                        <input
-                                            type="radio"
-                                            v-model="role"
-                                            value="employer"
-                                            id="role-employer"
-                                            class="w-4 h-4 text-teal-500 bg-gray-100 border-gray-300 focus:ring-teal-500"
-                                        />
-                                    </div>
-                                    <div class="ms-2 text-sm">
-                                        <label
-                                            for="role-employer"
-                                            class="font-medium text-gray-900"
-                                        >
-                                            Employer
-                                            <p class="text-xs font-normal text-gray-500">
-                                                Post and manage jobs.
-                                            </p>
-                                        </label>
-                                    </div>
+                                    <div class="ms-3">Employer</div>
                                 </div>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div class="form-field relative mb-7 flex items-center">
+                  <!-- company name if registered as an employer -->
+                  <div v-if="role === 'employer'" class="form-field relative mb-7">
+                    <label for="companyName" class="flex items-center justify-between mb-1">
+                        <div class="form-label font-medium text-sm">Company Name</div>
+                    </label>
                     <input
-                        type="checkbox"
-                        v-model="termsAgreed"
-                        id="termsAgreed"
-                        class="w-4 h-4 text-teal-500 bg-gray-100 border-gray-300 focus:ring-teal-500"
+                        type="text"
+                        v-model="companyName"
+                        id="companyName"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-[8px] h-[38px] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                        placeholder="Your Company Name"
                     />
-                    <label for="termsAgreed" class="ms-2 text-sm text-gray-600">
-                        I agree to the
-                        <router-link to="/terms" class="text-teal-600 hover:underline"
-                            >terms of use</router-link
-                        >
+                </div>
+                <div class="form-field relative mb-7">
+                    <label class="flex items-center">
+                        <input
+                            type="checkbox"
+                            v-model="termsAgreed"
+                            id="termsAgreed"
+                            class="form-checkbox h-4 w-4 text-teal-600"
+                        />
+                        <span class="ml-2 text-sm">
+                            I agree to the <a href="#" class="text-teal-600">Terms and Conditions</a>
+                        </span>
                     </label>
                 </div>
                 <button
-                    class="w-full bg-slate-700 text-white px-6 rounded-[10px] h-[50px] text-lg mt-6 relative flex items-center justify-center"
+                    type="submit"
+                    class="w-full text-white bg-teal-700 hover:bg-teal-800 focus:ring-1 focus:outline-none focus:ring-teal-600 font-medium rounded-lg text-sm px-4 py-2.5 text-center"
                 >
                     Register
-                    <i
-                        class="fa fa-regular fa-arrow-right fa-fw ml-2 absolute right-4"
-                        aria-hidden="true"
-                    ></i>
                 </button>
+                <div class="text-center mt-4">
+                    Already have an account? <router-link to="/login" class="text-teal-600">Login here</router-link>
+                </div>
             </form>
-            <div class="mt-6 text-center text-base">
-                Already have an account?
-                <router-link to="/login" class="font-semibold hover:underline"
-                    >Login now</router-link
-                >
-            </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+</style>
