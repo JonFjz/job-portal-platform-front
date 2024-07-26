@@ -1,42 +1,43 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const showAddJobForm = ref(false) // Reactive variable to control the visibility of the add/edit job form
-const isEditing = ref(false) // Reactive variable to check if we're in editing mode
+const showAddJobForm = ref(false)
+const isEditing = ref(false)
 const newJob = ref({
-    // Reactive variable to hold data for the new or edited job
     title: '',
     company: '',
     location: '',
     salary: '',
     remote: false,
-    hybrid: false
+    hybrid: false,
+    logo: '',
+    featured: false
 })
+
+const employerId = ref('')
 const jobs = ref([])
-const currentJob = ref(null) // (not used in this code)
 
-// fetch jobs when the component is mounted
-onMounted(async () => {
-    await fetchJobs()
+onMounted(() => {
+    // fetch employer ID
+    employerId.value = localStorage.getItem('employerId')
+    fetchJobs()
 })
 
-// function to fetch jobs from the API
 const fetchJobs = async () => {
     try {
-        const response = await axios.get('http://localhost:3000/jobs')
+        const response = await axios.get(`http://localhost:3000/jobs?employerId=${employerId.value}`)
         jobs.value = response.data
     } catch (error) {
         console.error('Error fetching jobs:', error)
     }
 }
 
-// function to add a new job
 const addJob = async () => {
     try {
-        await axios.post('http://localhost:3000/jobs', newJob.value)
+        await axios.post('http://localhost:3000/jobs', { ...newJob.value, employerId: employerId.value })
         await fetchJobs()
         resetForm()
     } catch (error) {
@@ -44,14 +45,12 @@ const addJob = async () => {
     }
 }
 
-// function to set up the form for editing a job
 const editJob = (job) => {
-    newJob.value = { ...job } // pre-fill the form with the job data
-    isEditing.value = true // set the editing flag to true
-    showAddJobForm.value = true // show the add/edit job form
+    newJob.value = { ...job }
+    isEditing.value = true
+    showAddJobForm.value = true
 }
 
-// function to update an existing job
 const updateJob = async () => {
     try {
         await axios.put(`http://localhost:3000/jobs/${newJob.value.id}`, newJob.value)
@@ -62,7 +61,6 @@ const updateJob = async () => {
     }
 }
 
-// function to delete a job
 const deleteJob = async (id) => {
     try {
         await axios.delete(`http://localhost:3000/jobs/${id}`)
@@ -72,10 +70,8 @@ const deleteJob = async (id) => {
     }
 }
 
-// function to reset the job form fields
 const resetForm = () => {
     newJob.value = {
-        // reset all form fields to their default values
         title: '',
         company: '',
         location: '',
@@ -85,7 +81,7 @@ const resetForm = () => {
         logo: '',
         featured: false
     }
-    isEditing.value = false // reset the editing
+    isEditing.value = false
     showAddJobForm.value = false
 }
 </script>
@@ -112,23 +108,7 @@ const resetForm = () => {
                         <span>Manage Jobs</span>
                     </RouterLink>
                 </li>
-                <li v-if="userRole === 'Jobseeker'">
-                    <RouterLink
-                        to="/bookmarks"
-                        class="text-gray-700 hover:text-teal-600 flex items-center space-x-2 p-2 rounded-md transition-colors"
-                    >
-                        <svg
-                            class="w-6 h-6 fill-current text-gray-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                d="M3 4a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM4 5h1V4H4v1zM3 8a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1V8zM4 9h1V8H4v1zM8 4a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM9 5h1V4H9v1zM8 8a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1H9a1 1 0 01-1-1V8zM9 9h1V8H9v1zM13 4a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1V4zM14 5h1V4h-1v1zM13 8a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1h-1a1 1 0 01-1-1V8zM14 9h1V8h-1v1z"
-                            ></path>
-                        </svg>
-                        <span>Bookmarks</span>
-                    </RouterLink>
-                </li>
+               
                 <li>
                     <RouterLink
                         to="/applications"
@@ -175,71 +155,85 @@ const resetForm = () => {
             </button>
 
             <div v-if="showAddJobForm" class="mt-6 bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-semibold mb-4">
-                    {{ isEditing ? 'Edit Job' : 'Add New Job' }}
-                </h3>
+                <h3 class="text-xl font-semibold mb-4">{{ isEditing ? 'Edit Job' : 'Add New Job' }}</h3>
                 <form @submit.prevent="isEditing ? updateJob() : addJob()">
-                    <div class="mb-4">
-                        <label for="title" class="block text-gray-600">Title:</label>
-                        <input
-                            v-model="newJob.title"
-                            type="text"
-                            id="title"
-                            class="border border-gray-300 p-2 rounded-md w-full"
-                            required
-                        />
-                    </div>
-                    <div class="mb-4">
-                        <label for="company" class="block text-gray-600">Company:</label>
-                        <input
-                            v-model="newJob.company"
-                            type="text"
-                            id="company"
-                            class="border border-gray-300 p-2 rounded-md w-full"
-                            required
-                        />
-                    </div>
-                    <div class="mb-4">
-                        <label for="location" class="block text-gray-600">Location:</label>
-                        <input
-                            v-model="newJob.location"
-                            type="text"
-                            id="location"
-                            class="border border-gray-300 p-2 rounded-md w-full"
-                        />
-                    </div>
-                    <div class="mb-4">
-                        <label for="salary" class="block text-gray-600">Salary:</label>
-                        <input
-                            v-model="newJob.salary"
-                            type="text"
-                            id="salary"
-                            class="border border-gray-300 p-2 rounded-md w-full"
-                        />
-                    </div>
-                    <div class="mb-4">
-                        <label for="remote" class="inline-flex items-center">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="title" class="block text-gray-600">Title:</label>
+                            <input
+                                v-model="newJob.title"
+                                type="text"
+                                id="title"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label for="company" class="block text-gray-600">Company:</label>
+                            <input
+                                v-model="newJob.company"
+                                type="text"
+                                id="company"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label for="location" class="block text-gray-600">Location:</label>
+                            <input
+                                v-model="newJob.location"
+                                type="text"
+                                id="location"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+                        <div>
+                            <label for="salary" class="block text-gray-600">Salary:</label>
+                            <input
+                                v-model="newJob.salary"
+                                type="text"
+                                id="salary"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+                        <div class="flex items-center">
                             <input
                                 v-model="newJob.remote"
                                 type="checkbox"
                                 id="remote"
-                                class="form-checkbox text-teal-600"
+                                class="mr-2"
                             />
-                            <span class="ml-2 text-gray-600">Remote</span>
-                        </label>
-                    </div>
-                    <div class="mb-4">
-                        <label for="hybrid" class="inline-flex items-center">
+                            <label for="remote" class="text-gray-600">Remote</label>
+                        </div>
+                        <div class="flex items-center">
                             <input
                                 v-model="newJob.hybrid"
                                 type="checkbox"
                                 id="hybrid"
-                                class="form-checkbox text-teal-600"
+                                class="mr-2"
                             />
-                            <span class="ml-2 text-gray-600">Hybrid</span>
-                        </label>
+                            <label for="hybrid" class="text-gray-600">Hybrid</label>
+                        </div>
+                        <div>
+                            <label for="logo" class="block text-gray-600">Company Logo URL:</label>
+                            <input
+                                v-model="newJob.logo"
+                                type="text"
+                                id="logo"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            />
+                        </div>
+                        <div class="flex items-center">
+                            <input
+                                v-model="newJob.featured"
+                                type="checkbox"
+                                id="featured"
+                                class="mr-2"
+                            />
+                            <label for="featured" class="text-gray-600">Featured</label>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="mt-4">
                         <button
                             type="submit"
                             class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
@@ -248,65 +242,37 @@ const resetForm = () => {
                         </button>
                         <button
                             type="button"
-                            @click="showAddJobForm = false"
-                            class="bg-gray-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-600 transition-colors"
+                            @click="resetForm"
+                            class="ml-4 bg-gray-300 text-gray-700 px-4 py-2 rounded-md shadow-md hover:bg-gray-400 transition-colors"
                         >
                             Cancel
                         </button>
                     </div>
-                    <div class="mb-4">
-                        <label for="logo" class="block text-gray-600">Logo URL:</label>
-                        <input
-                            v-model="newJob.logo"
-                            type="text"
-                            id="logo"
-                            class="border border-gray-300 p-2 rounded-md w-full"
-                        />
-                    </div>
-                    <div class="mb-4">
-                        <label for="featured" class="inline-flex items-center">
-                            <input
-                                v-model="newJob.featured"
-                                type="checkbox"
-                                id="featured"
-                                class="form-checkbox text-teal-600"
-                            />
-                            <span class="ml-2 text-gray-600">Featured</span>
-                        </label>
-                    </div>
                 </form>
             </div>
 
-            <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-semibold mb-4">Job List</h3>
-                <div v-if="jobs.length === 0" class="text-gray-600">No jobs available.</div>
-                <ul v-else>
-                    <li v-for="job in jobs" :key="job.id" class="border-b border-gray-200 py-4">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h4 class="text-lg font-semibold">{{ job.title }}</h4>
-                                <p class="text-gray-600">{{ job.company }} - {{ job.location }}</p>
-                                <p class="text-gray-500">
-                                    {{ job.salary ? job.salary : 'Salary not specified' }}
-                                </p>
-                                <p class="text-gray-500">
-                                    {{ job.remote ? 'Remote' : '' }}{{ job.hybrid ? 'Hybrid' : '' }}
-                                </p>
-                            </div>
-                            <div>
-                                <button
-                                    @click="editJob(job)"
-                                    class="bg-teal-600 text-white px-3 py-1 rounded-md shadow-md hover:bg-teal-700 transition-colors"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    @click="deleteJob(job.id)"
-                                    class="bg-red-600 text-white px-3 py-1 rounded-md shadow-md hover:bg-red-700 transition-colors ml-2"
-                                >
-                                    Delete
-                                </button>
-                            </div>
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold mb-4">Job Listings</h3>
+                <div v-if="jobs.length === 0" class="text-gray-500">No jobs found.</div>
+                <ul class="space-y-4">
+                    <li v-for="job in jobs" :key="job.id" class="bg-white p-4 rounded-md shadow-md">
+                        <h4 class="text-lg font-bold">{{ job.title }}</h4>
+                        <p class="text-gray-600">{{ job.company }}</p>
+                        <p class="text-gray-600">{{ job.location }}</p>
+                        <p class="text-gray-600">{{ job.salary }}</p>
+                        <div class="mt-4 flex space-x-4">
+                            <button
+                                @click="editJob(job)"
+                                class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                @click="deleteJob(job.id)"
+                                class="bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 transition-colors"
+                            >
+                                Delete
+                            </button>
                         </div>
                     </li>
                 </ul>
