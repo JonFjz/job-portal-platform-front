@@ -9,6 +9,7 @@ import JobDetailView from '@/views/JobDetailView.vue'
 import JobsView from '@/views/JobsView.vue'
 import EmployerDashboard from '@/views/EmployerDashboard.vue'
 import JobseekerDashboard from '@/views/JobseekerDashboard.vue'
+import { parseJwt } from '@/utils/token'; 
 
 const routes = [
     {
@@ -61,63 +62,52 @@ const routes = [
         path: '/jobseeker-dashboard',
         name: 'jobseeker-dashboard',
         component: JobseekerDashboard,
-        meta: { requiresAuth: true, role: 'jobseeker' }
+        meta: { requiresAuth: true, role: 'JobSeeker' }
     },
     {
         path: '/employer-dashboard',
         name: 'employer-dashboard',
         component: EmployerDashboard,
-        meta: { requiresAuth: true, role: 'employer' }
+        meta: { requiresAuth: true, role: 'Employer' }
     }
 ]
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL), // Use HTML5 history mode
+    history: createWebHistory(import.meta.env.BASE_URL), 
     routes
 })
 
 // global navigation guard
 router.beforeEach((to, from, next) => {
-    const user = localStorage.getItem('user') // retrieve user data from localStorage
-    let userData = null
+    const token = localStorage.getItem('token')
+    let decodedToken = null
 
-    if (user) {
-        try {
-            userData = JSON.parse(user)
-        } catch (e) {
-            console.error('Error parsing user data from localStorage', e)
-            localStorage.removeItem('user')
-            userData = null
+    // if a token exists, attempt to decode it
+    if (token) {
+        decodedToken = parseJwt(token)
+       // if it fails, remove the token from localStorage
+
+        if (!decodedToken) {
+            localStorage.removeItem('token')
         }
     }
-
-    const isAuthenticated = !!userData // check if the user is authenticated
-    const requiresAuth = to.meta.requiresAuth // check if the route requires authentication
-    const requiresGuest = to.meta.requiresGuest // check if the route requires the user to be a guest
-
-    // Backend authentication check (commented out for now)
-    // const checkBackendAuthentication = async () => {
-    //     try {
-    //         const response = await axios.get('/api/auth/check-session');
-    //         return response.data.isAuthenticated;
-    //     } catch (error) {
-    //         console.error('Failed to check backend authentication', error);
-    //         return false;
-    //     }
-    // };
+   // control if the user is authenticated based on the presence of a decoded token
+    const isAuthenticated = !!decodedToken
+    const requiresAuth = to.meta.requiresAuth
+    const requiresGuest = to.meta.requiresGuest
 
     if (requiresAuth && !isAuthenticated) {
-        next({ name: 'login' }) // redirect to login if authentication is required but not authenticated
+        next({ name: 'login' })
     } else if (requiresAuth && isAuthenticated) {
-        if (userData.role === to.meta.role) {
-            next() // proceed if the user role matches the required role
+        if (decodedToken['https://dev-2si34b7jockzxhln/role'] === to.meta.role) {
+            next()
         } else {
-            next({ name: 'home' }) // redirect to home if the user role does not match
+            next({ name: 'home' })
         }
     } else if (requiresGuest && isAuthenticated) {
-        next({ name: 'home' }) // redirect to home if already authenticated but route requires guest
+        next({ name: 'home' })
     } else {
-        next() // proceed to the route if no conditions are met
+        next()
     }
 })
 
