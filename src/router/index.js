@@ -9,6 +9,7 @@ import JobDetailView from '@/views/JobDetailView.vue'
 import JobsView from '@/views/JobsView.vue'
 import EmployerDashboard from '@/views/EmployerDashboard.vue'
 import JobseekerDashboard from '@/views/JobseekerDashboard.vue'
+import LearnView from '@/views/LearnView.vue'
 
 const routes = [
     {
@@ -68,6 +69,11 @@ const routes = [
         name: 'employer-dashboard',
         component: EmployerDashboard,
         meta: { requiresAuth: true, role: 'employer' }
+    },
+    {
+        path: '/learn',
+        name: 'learn',
+        component: LearnView
     }
 ]
 
