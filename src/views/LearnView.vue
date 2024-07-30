@@ -1,6 +1,6 @@
 <script setup>
-import LearnCarousel from '@/components/LearnPage/LearnCarousel.vue';
 import DefaultLayout from '../layouts/DefaultLayout.vue'
+import LearnCarousel from '@/components/LearnPage/LearnCarousel.vue';
 import LearnHeader from '@/components/LearnPage/LearnHeader.vue'
 </script>
 
@@ -11,3 +11,5 @@ import LearnHeader from '@/components/LearnPage/LearnHeader.vue'
         <!-- next component -->
     </DefaultLayout>
 </template>
+
+<style scoped></style>
