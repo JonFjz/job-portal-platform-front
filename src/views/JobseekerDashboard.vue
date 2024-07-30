@@ -2,6 +2,11 @@
 import { ref, onMounted } from 'vue'
 import JobCard from '@/components/Jobs/JobsCard.vue'
 import { getUserId } from '@/services/authService'
+import { useRouter } from 'vue-router'
+
+const goBack = () => {
+    router.push('/')
+}
 
 const userId = ref(null)
 const user = ref({
@@ -189,6 +194,12 @@ aside {
                         Save Changes
                     </button>
                 </div>
+                <button
+                    @click="goBack"
+                    class="mt-4 bg-gray-400 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-500 transition-colors"
+                >
+                    Back
+                </button>
             </div>
 
             <div v-if="currentView === 'bookmarks'" class="bg-white p-6 rounded-lg shadow-md">

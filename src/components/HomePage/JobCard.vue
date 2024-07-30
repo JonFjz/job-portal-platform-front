@@ -6,6 +6,15 @@ import Bookmark from '@/components/Bookmark.vue'
 const props = defineProps({
     job: Object // Define the prop for job, which is an object containing id and title
 })
+console.log('Job:', props.job) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
+console.log('Job ID:', props.job.jobId) // Debug log
 
 // Create a ref to manage the bookmark state
 const router = useRouter()

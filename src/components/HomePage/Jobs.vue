@@ -1,45 +1,50 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import JobCard from './JobCard.vue'
+import axios from 'axios'
 
-// Data variables
 const jobs = ref([])
 const currentPage = ref(1)
 const pageSize = 6 // Number of jobs per page
-let totalPages = ref(1)
+const totalPages = ref(0)
+const isLoading = ref(false)
 
-// Dummy data for demonstration
-const dummyJobs = ref([
-    { id: 1, title: 'Vue.js Dev (4 yrs xp;Remote @ $140k/year)' },
-    { id: 2, title: 'Senior Front-end Engineer - Vue Project (Hybrid)' },
-    { id: 3, title: 'Job 3' },
-    { id: 4, title: 'Job 4' },
-    { id: 5, title: 'Job 5' },
-    { id: 6, title: 'Job 6' },
-    { id: 7, title: 'Job 7' },
-    { id: 8, title: 'Job 8' },
-    { id: 9, title: 'Job 9' }
-])
-
-// Function to fetch jobs
-const fetchJobs = () => {
-    const startIndex = (currentPage.value - 1) * pageSize
-    const endIndex = startIndex + pageSize
-    jobs.value = dummyJobs.value.slice(startIndex, endIndex)
+// Function to fetch job details by ID
+const fetchJobById = async (id) => {
+    try {
+        const response = await axios.get(`https://localhost:7136/api/JobPostings/${id}`)
+        return response.data
+    } catch (error) {
+        console.error(`Failed to fetch job with ID ${id}`, error)
+        return null
+    }
 }
 
-// Function to calculate total pages
-const calculateTotalPages = () => {
-    totalPages.value = Math.ceil(dummyJobs.value.length / pageSize)
-}
+// Function to fetch jobs for the current page until an error occurs
+const fetchJobs = async () => {
+    isLoading.value = true
+    jobs.value = []
+    let id = 1 // Starting ID
+    let jobFetchedCount = 0 // Count of successfully fetched jobs
 
-// Watch for changes in dummyJobs to recalculate total pages
-watch(dummyJobs, calculateTotalPages)
+    while (jobFetchedCount < pageSize) {
+        const job = await fetchJobById(id++)
+        if (job) {
+            jobs.value.push({ ...job, jobId: id }) // Ensure job.id exists
+            jobFetchedCount++
+        } else {
+            break // Stop fetching if an error occurs
+        }
+    }
+
+    // Calculate total pages based on fetched jobs
+    totalPages.value = Math.ceil(jobs.value.length / pageSize)
+    isLoading.value = false
+}
 
 // Initial fetch on component mount
 onMounted(() => {
     fetchJobs()
-    calculateTotalPages()
 })
 
 // Pagination functions
@@ -78,8 +83,18 @@ const nextPage = () => {
         <!-- Job Cards section -->
         <div class="container mx-auto p-4">
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-2">
-                <!-- Job cards here -->
-                <JobCard v-for="job in jobs" :key="job.id" :job="job" />
+                <!-- Skeleton loaders -->
+                <template v-if="isLoading">
+                    <div
+                        v-for="n in pageSize"
+                        :key="n"
+                        class="bg-gray-200 dark:bg-gray-700 rounded-lg h-40"
+                    ></div>
+                </template>
+                <!-- Job cards -->
+                <template v-else>
+                    <JobCard v-for="job in jobs" :key="job.jobId" :job="job" />
+                </template>
             </div>
         </div>
 

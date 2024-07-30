@@ -1,3 +1,56 @@
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+import { useToast } from 'vue-toast-notification'
+import { parseJwt } from '@/utils/token'
+
+const email = ref('')
+const password = ref('')
+const router = useRouter()
+const toast = useToast()
+
+const loginUser = async () => {
+    try {
+        const response = await axios.post('https://localhost:7136/api/Auth0/login', {
+            email: email.value,
+            password: password.value
+        })
+
+        console.log('API response:', response)
+
+        if (!response.data.access_token) {
+            throw new Error('Token is not present in the response')
+        }
+
+        const token = response.data.access_token
+        const decoded = parseJwt(token)
+
+        // check if the token is valid and contains the role
+        if (!decoded || !decoded['https://dev-2si34b7jockzxhln/role']) {
+            throw new Error('Invalid token')
+        }
+
+        const role = decoded['https://dev-2si34b7jockzxhln/role']
+        const user = {
+            name: email.value || 'User',
+            role: role
+        }
+
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
+
+        console.log('Stored user in localStorage:', localStorage.getItem('user'))
+
+        const redirectPath = role === 'JobSeeker' ? '/jobseeker-dashboard' : '/employer-dashboard'
+        router.push(redirectPath)
+    } catch (error) {
+        toast.error('Error logging in user')
+        console.error('Error logging in user:', error)
+    }
+}
+</script>
+
 <template>
     <div class="bg-white w-full flex items-center justify-center">
         <div class="container max-w-md bg-slate-100 p-10 rounded-lg w-fit my-16 text-gray-600">
@@ -73,66 +126,13 @@
             </form>
             <div class="mt-6 text-center text-base">
                 Don't have an account?
-                <router-link to="/register" class="font-semibold hover:underline">Register now</router-link>
+                <router-link to="/register" class="font-semibold hover:underline"
+                    >Register now</router-link
+                >
             </div>
         </div>
     </div>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
-import { useToast } from 'vue-toast-notification';
-import { parseJwt } from '@/utils/token'; 
-
-const email = ref('');
-const password = ref('');
-const router = useRouter();
-const toast = useToast();
-
-const loginUser = async () => {
-    try {
-        const response = await axios.post('https://localhost:7136/api/Auth0/login', {
-            email: email.value,
-            password: password.value,
-        });
-
-        console.log('API response:', response);
-
-        if (!response.data.access_token) {
-            throw new Error('Token is not present in the response');
-        }
-
-        const token = response.data.access_token;
-        const decoded = parseJwt(token);
-
-        // check if the token is valid and contains the role
-        if (!decoded || !decoded['https://dev-2si34b7jockzxhln/role']) {
-            throw new Error('Invalid token');
-        }
-
-        const role = decoded['https://dev-2si34b7jockzxhln/role'];
-        const user = {
-            name: email.value || 'User',
-            role: role,
-        };
-
-        console.log('User object to be stored:', user);
-
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        console.log('Stored user in localStorage:', localStorage.getItem('user'));
-
-        const redirectPath = role === 'JobSeeker' ? '/jobseeker-dashboard' : '/employer-dashboard';
-        router.push(redirectPath);
-    } catch (error) {
-        toast.error('Error logging in user');
-        console.error('Error logging in user:', error);
-    }
-};
-</script>
 
 <style scoped>
 .pagination {
