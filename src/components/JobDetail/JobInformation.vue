@@ -1,0 +1,167 @@
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import ReviewModal from '@/components/ReviewModal.vue'  
+
+const route = useRoute()
+const jobId = ref(route.params.id)
+const jobDetails = ref(null)
+const reviews = ref([])
+const showReviewModal = ref(false)
+
+
+const fetchJobDetails = async (id) => {
+  if (!id) return
+  const response = await fetch(`http://localhost:3000/jobs/${id}`)
+  jobDetails.value = await response.json()
+  fetchReviews(jobDetails.value.company)
+}
+
+const fetchReviews = async (companyName) => {
+  if (!companyName) return
+  const response = await fetch(`http://localhost:3000/reviews?company=${companyName}`)
+  reviews.value = await response.json()
+}
+
+const postReview = async (reviewData) => {
+  if (reviewData.review.trim() && reviewData.rating && jobId.value) {
+    const review = {
+      jobId: jobId.value,
+      company: jobDetails.value.company,
+      review: reviewData.review,
+      rating: reviewData.rating
+    }
+    await fetch('http://localhost:3000/reviews', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(review)
+    })
+    fetchReviews(jobDetails.value.company)  // refresh reviews
+  }
+}
+
+// computed property to calculate the average rating from all reviews
+const averageRating = computed(() => {
+  if (reviews.value.length === 0) return 0 // if no reviews, return 0
+  const total = reviews.value.reduce((sum, review) => sum + review.rating, 0) // sum up all ratings
+  return total / reviews.value.length // the average
+})
+
+// if its mounted fetch the jobs based by id
+onMounted(() => {
+  if (jobId.value) {
+    fetchJobDetails(jobId.value)
+  }
+})
+
+watch(() => route.params.id, (newId) => {
+  jobId.value = newId
+  fetchJobDetails(newId)
+})
+
+// controling the visibility of the review modal
+const openReviewModal = () => {
+  showReviewModal.value = true
+}
+
+const closeReviewModal = () => {
+  showReviewModal.value = false
+}
+</script>
+
+<template>
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-300 text-gray-600">
+        <div class="bg-slate-100 dark:bg-gray-700 dark:text-gray-300 px-4">
+            <div class="flex flex-wrap items-center container mx-auto lg:py-0 py-2 w-full justify-between">
+                <div class="flex flex-row w-full justify-between py-8">
+                    <div class="flex flex-col items-start md:items-center md:flex-row">
+                        <img
+                            :src="jobDetails?.logo || 'https://via.placeholder.com/150'"
+                            alt="Job image"
+                            class="h-12 md:h-16 lg:h-20 rounded-lg w-fit"
+                        />
+                        <div class="text-gray-600 dark:text-gray-300 md:pl-4">
+                            <h1 class="font-semibold text-2xl md:text-4xl lg:text-5xl">
+                                {{ jobDetails?.title || 'Loading...' }}
+                            </h1>
+                            <h2 class="text-xl md:text-3xl lg:text-4xl">
+                                {{ jobDetails?.company || 'Loading...' }}
+                            </h2>
+                            <div class="flex items-center mt-2">
+                                <template v-for="star in 5" :key="star">
+                                    <svg
+                                        :class="{'text-yellow-500': star <= averageRating, 'text-gray-300': star > averageRating}"
+                                        class="w-5 h-5"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M11.049 2.927c.3-.921 1.6-.921 1.901 0l2.452 5.833 6.407.569c.965.084 1.355 1.253.654 1.888l-4.94 4.147 1.485 6.452c.238 1.016-1.165 1.791-1.748.897L12 17.229l-5.662 3.154c-.584.893-1.986.119-1.748-.897l1.485-6.452-4.94-4.147c-.701-.635-.311-1.804.654-1.888l6.407-.569 2.452-5.833z"
+                                        />
+                                    </svg>
+                                </template>
+                                <span class="ml-2 text-gray-500">({{ averageRating.toFixed(1) }} / 5)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <Bookmark :jobId="jobId" />
+                </div>
+            </div>
+        </div>
+        <div class="flex py-8 items-start justify-start px-4">
+            <div class="flex flex-col md:flex-row container mx-auto lg:py-0 py-2 w-full">
+                <div class="flex flex-col w-full h-fit md:w-1/3 items-start md:items-start border-2 border-teal-800 rounded-md">
+                    <!-- Job Details -->
+                    <div class="p-4">
+                        <h1 class="font-semibold text-2xl">Location</h1>
+                        <h2 class="text-xl">{{ jobDetails?.location || 'Nothing to show' }}</h2>
+                        <h3>{{ jobDetails?.specific_location || '' }}</h3>
+                    </div>
+                    <div class="p-4">
+                        <h1 class="font-semibold text-2xl">Work Type</h1>
+                        <h2 class="text-xl">{{ jobDetails?.work_type || 'Nothing to show' }}</h2>
+                    </div>
+                    <div class="p-4">
+                        <h1 class="font-semibold text-2xl">Work Level</h1>
+                        <h2 class="text-xl">{{ jobDetails?.work_level || 'Nothing to show' }}</h2>
+                    </div>
+                    <div class="p-4">
+                        <h1 class="font-semibold text-2xl">Salary</h1>
+                        <h2 class="text-xl">{{ jobDetails?.salary || 'Nothing to show' }}</h2>
+                    </div>
+                    <div class="p-4">
+                        <h1 class="font-semibold text-2xl">Date Posted</h1>
+                        <h2 class="text-xl">{{ jobDetails?.date_posted || 'Nothing to show' }}</h2>
+                    </div>
+                    <div class="flex items-center justify-center w-full">
+                        <button @click="openApplicationForm" class="w-full bg-teal-800 text-white px-6 py-3 rounded-sm font-semibold">
+                            Apply Now 🔗
+                        </button>
+                    </div>
+
+                </div>
+                <div class="pl-0 md:pl-8 w-full md:w-2/3">
+                    <h1 class="text-3xl">Job Description</h1>
+                    <p>
+                        {{ jobDetails?.description || 'Nothing to show' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 container">
+            <h1 class="text-2xl font-semibold">Company Review</h1>
+            <div class="p-4">
+                
+      <button @click="openReviewModal" class="bg-teal-800 text-white px-4 py-2 rounded-md">Leave a Review</button>
+      <ReviewModal :isVisible="showReviewModal" @close="closeReviewModal" @submit="postReview" />
+    </div>
+        </div>
+    </div>
+</template>

@@ -14,8 +14,18 @@ export default {
                 medium: 500,
                 semibold: 600,
                 bold: 700
-            }
-        }
+            },
+            container: {
+                center: true,
+                padding: {
+                    DEFAULT: '1rem',
+                    sm: '1.5rem',
+                    lg: '2.5rem',
+                    xl: '3.5rem',
+                    '2xl': '4rem',
+                },
+            },
+        },
     },
-    plugins: []
+    plugins: [],
 }
