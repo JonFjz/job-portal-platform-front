@@ -1,13 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
 
 const goBack = () => {
     router.push('/')
 }
 
-const router = useRouter()
 const showAddJobForm = ref(false)
 const isEditing = ref(false)
 const newJob = ref({
@@ -31,7 +33,7 @@ onMounted(() => {
 const fetchJobs = async () => {
     try {
         const response = await axios.get(
-            `http://localhost:3000/jobs?employerId=${employerId.value}`
+            `https://localhost:7136/api/JobPostings/by-employer/${employerId.value}`
         )
         jobs.value = response.data
     } catch (error) {
@@ -48,7 +50,7 @@ const handleSubmit = () => {
 }
 
 const addJob = async () => {
-    const token = localStorage.getItem('token') // Ensure this is the correct key where your token is stored
+    const token = localStorage.getItem('token')
 
     const config = {
         headers: {
@@ -125,6 +127,8 @@ const resetForm = () => {
     isEditing.value = false
     showAddJobForm.value = false
 }
+
+const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
 </script>
 
 <template>
@@ -134,7 +138,7 @@ const resetForm = () => {
             <ul class="space-y-4">
                 <li>
                     <RouterLink
-                        to="/employer-dashboard"
+                        to="/employer-dashboard/"
                         class="text-gray-700 hover:text-teal-600 flex items-center space-x-2 p-2 rounded-md transition-colors"
                     >
                         <svg
@@ -149,9 +153,19 @@ const resetForm = () => {
                         <span>Manage Jobs</span>
                     </RouterLink>
                 </li>
+
                 <li>
                     <RouterLink
-                        to="/applications"
+                        to="/employer-dashboard/job-listings"
+                        class="text-gray-700 hover:text-teal-600 flex items-center space-x-2 p-2 rounded-md transition-colors"
+                    >
+                        <span>Jobs</span>
+                    </RouterLink>
+                </li>
+
+                <li>
+                    <RouterLink
+                        to="/employer-dashboard/job-applications"
                         class="text-gray-700 hover:text-teal-600 flex items-center space-x-2 p-2 rounded-md transition-colors"
                     >
                         <svg
@@ -168,7 +182,7 @@ const resetForm = () => {
                 </li>
                 <li>
                     <RouterLink
-                        to="/settings"
+                        to="/employer-dashboard/profile"
                         class="text-gray-700 hover:text-teal-600 flex items-center space-x-2 p-2 rounded-md transition-colors"
                     >
                         <svg
@@ -180,7 +194,7 @@ const resetForm = () => {
                                 d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"
                             ></path>
                         </svg>
-                        <span>Settings</span>
+                        <span>Profile</span>
                     </RouterLink>
                 </li>
                 <button
@@ -192,155 +206,169 @@ const resetForm = () => {
             </ul>
         </aside>
         <main class="flex-1 p-6 bg-gray-100">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Manage Jobs</h2>
-            <button
-                @click="showAddJobForm = true"
-                class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
-            >
-                Add New Job
-            </button>
+            <RouterView></RouterView>
+            <div v-if="isManageJobsPage">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Manage Jobs</h2>
+                <button
+                    @click="showAddJobForm = true"
+                    class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
+                >
+                    Add New Job
+                </button>
 
-            <div v-if="showAddJobForm" class="mt-6 bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-semibold mb-4">
-                    {{ isEditing ? 'Edit Job' : 'Add New Job' }}
-                </h3>
-                <form @submit.prevent="handleSubmit">
-                    <div class="space-y-4">
-                        <div>
-                            <label for="title" class="block text-gray-600">Title:</label>
+                <div v-if="showAddJobForm" class="mt-6 bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">
+                        {{ isEditing ? 'Edit Job' : 'Add New Job' }}
+                    </h3>
+                    <form @submit.prevent="handleSubmit">
+                        <div class="mb-4">
+                            <label for="title" class="block text-gray-700 font-semibold mb-2">
+                                Title
+                            </label>
                             <input
                                 v-model="newJob.title"
-                                type="text"
                                 id="title"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                type="text"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
                                 required
                             />
                         </div>
-                        <div>
-                            <label for="description" class="block text-gray-600"
-                                >Description:</label
-                            >
+
+                        <div class="mb-4">
+                            <label for="closingDate" class="block text-gray-700 font-semibold mb-2">
+                                Closing Date
+                            </label>
                             <input
-                                v-model="newJob.description"
-                                type="text"
-                                id="description"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                v-model="newJob.closingDate"
+                                id="closingDate"
+                                type="date"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
+                                required
                             />
                         </div>
-                        <div>
-                            <label for="workType" class="block text-gray-600">Work Type:</label>
+
+                        <div class="mb-4">
+                            <label for="workType" class="block text-gray-700 font-semibold mb-2">
+                                Work Type
+                            </label>
                             <select
                                 v-model="newJob.workType"
                                 id="workType"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
+                                required
                             >
                                 <option value="">Select Work Type</option>
-                                <option value="0">FullTime</option>
-                                <option value="1">PartTime</option>
-                                <option value="2">Contract</option>
-                                <option value="3">Temporary</option>
-                                <option value="4">Internship</option>
+                                <option value="1">Full-time</option>
+                                <option value="2">Part-time</option>
                             </select>
                         </div>
-                        <div>
-                            <label for="workLevel" class="block text-gray-600">Work Level:</label>
+
+                        <div class="mb-4">
+                            <label for="workLevel" class="block text-gray-700 font-semibold mb-2">
+                                Work Level
+                            </label>
                             <select
                                 v-model="newJob.workLevel"
                                 id="workLevel"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
+                                required
                             >
                                 <option value="">Select Work Level</option>
-                                <option value="0">Junior</option>
-                                <option value="1">Mid</option>
-                                <option value="2">Senior</option>
-                                <option value="3">Lead</option>
-                                <option value="4">Manager</option>
-                                <option value="5">Director</option>
-                                <option value="6">Executive</option>
+                                <option value="1">Junior</option>
+                                <option value="2">Mid-level</option>
+                                <option value="3">Senior</option>
                             </select>
                         </div>
-                        <div>
-                            <label for="closingDate" class="block text-gray-600"
-                                >Closing Date:</label
-                            >
-                            <input
-                                v-model="newJob.closingDate"
-                                type="date"
-                                id="closingDate"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
+
+                        <div class="mb-4">
+                            <label for="description" class="block text-gray-700 font-semibold mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                v-model="newJob.description"
+                                id="description"
+                                rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
+                                required
+                            ></textarea>
                         </div>
-                        <div>
-                            <label for="responsibilities" class="block text-gray-600"
-                                >Responsibilities:</label
-                            >
+
+                        <div class="mb-4">
+                            <label for="responsibilities" class="block text-gray-700 font-semibold mb-2">
+                                Responsibilities
+                            </label>
                             <textarea
                                 v-model="newJob.responsibilities"
                                 id="responsibilities"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
+                                required
                             ></textarea>
                         </div>
-                        <div>
-                            <label for="notificationEmail" class="block text-gray-600"
-                                >Notification Email:</label
-                            >
+
+                        <div class="mb-4">
+                            <label for="notificationEmail" class="block text-gray-700 font-semibold mb-2">
+                                Notification Email
+                            </label>
                             <input
                                 v-model="newJob.notificationEmail"
-                                type="email"
                                 id="notificationEmail"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                type="email"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
                                 required
                             />
                         </div>
-                    </div>
-                    <div class="mt-4">
-                        <button
-                            type="submit"
-                            class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
-                        >
-                            {{ isEditing ? 'Update Job' : 'Add Job' }}
-                        </button>
-                        <button
-                            type="button"
-                            @click="resetForm"
-                            class="bg-gray-400 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-500 transition-colors ml-2"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
 
-            <h3 class="text-xl font-semibold mt-8 mb-4">Job Listings</h3>
-            <table class="min-w-full bg-white border border-gray-300">
-                <thead>
-                    <tr>
-                        <th class="py-2 px-4 border-b">Title</th>
-                        <th class="py-2 px-4 border-b">Closing Date</th>
-                        <th class="py-2 px-4 border-b">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="job in jobs" :key="job.id">
-                        <td class="py-2 px-4 border-b">{{ job.title }}</td>
-                        <td class="py-2 px-4 border-b">{{ job.closingDate }}</td>
-                        <td class="py-2 px-4 border-b">
+                        <div class="flex justify-end space-x-4">
                             <button
-                                @click="editJob(job)"
-                                class="bg-blue-600 text-white px-2 py-1 rounded-md hover:bg-blue-700"
+                                type="submit"
+                                class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
                             >
-                                Edit
+                                {{ isEditing ? 'Update Job' : 'Add Job' }}
                             </button>
                             <button
-                                @click="deleteJob(job.id)"
-                                class="bg-red-600 text-white px-2 py-1 rounded-md hover:bg-red-700 ml-2"
+                                @click="resetForm"
+                                type="button"
+                                class="bg-gray-400 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-500 transition-colors"
                             >
-                                Delete
+                                Cancel
                             </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-4">Your Jobs</h3>
+                    <ul class="space-y-4">
+                        <li v-for="job in jobs" :key="job.id" class="bg-white p-4 rounded-lg shadow-md">
+                            <h4 class="text-lg font-semibold">{{ job.title }}</h4>
+                            <p class="text-gray-600">{{ job.closingDate }}</p>
+                            <p class="text-gray-600">{{ job.workType }}</p>
+                            <p class="text-gray-600">{{ job.workLevel }}</p>
+                            <p class="text-gray-600">{{ job.description }}</p>
+                            <p class="text-gray-600">{{ job.responsibilities }}</p>
+                            <p class="text-gray-600">{{ job.notificationEmail }}</p>
+                            <div class="flex space-x-2 mt-4">
+                                <button
+                                    @click="editJob(job)"
+                                    class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    @click="deleteJob(job.id)"
+                                    class="bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 transition-colors"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </main>
     </div>
 </template>
+
+<style scoped>
+</style>
