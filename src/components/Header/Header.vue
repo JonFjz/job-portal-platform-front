@@ -53,6 +53,11 @@ const handlePostJobClick = () => {
                 <div
                     class="text-xl text-center items-center gap-x-5 pt-4 md:gap-x-4 lg:text-lg lg:flex lg:pt-0 font-switzer"
                 >
+                <HeaderLink
+                        to="/companies-by-industry"
+                        text="Companies"
+                        class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
+                    />
                     <HeaderLink
                         to="/jobs"
                         text="Jobs"

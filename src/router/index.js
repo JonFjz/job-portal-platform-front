@@ -12,7 +12,11 @@ import JobseekerDashboard from '@/views/JobseekerDashboard.vue'
 import JobListings from '../views/employerdashboard/JobListings.vue'
 import JobApplications from '../views/employerdashboard/JobApplications.vue'
 import EmployerProfile from '../views/employerdashboard/EmployerProfile.vue'
+import JobsByEmployer from '@/components/Industries/JobsByEmployer.vue'
+import CompanyByIndustry from '@/components/Industries/CompanyByIndustry.vue'
+import IndustryDetails from '@/components/Industries/IndustryDetails.vue'
 import { parseJwt } from '@/utils/token'
+
 
 const routes = [
     {
@@ -89,7 +93,24 @@ const routes = [
                 component: JobApplications
             }
         ]
-    }
+    },
+    {
+        path: '/companies-by-industry/',
+        name: 'CompanyByIndustry',
+        component: CompanyByIndustry
+      },
+      {
+        path: '/industry/:industryName',
+        name: 'IndustryDetails',
+        component: IndustryDetails,
+        props: true
+      },
+      {
+        path: '/jobs-by-employer/:employerId',
+        name: 'JobsByEmployer',
+        component: JobsByEmployer,
+        props: true
+      }
 ]
 
 const router = createRouter({
