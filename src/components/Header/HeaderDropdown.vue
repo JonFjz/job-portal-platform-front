@@ -1,47 +1,3 @@
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter, RouterLink } from 'vue-router';
-
-const user = ref(null);
-const dropdownVisible = ref(false);
-
-onMounted(() => {
-  const storedUser = localStorage.getItem('user');
-  console.log('Stored user:', storedUser); 
-
-  if (storedUser) {
-    try {
-      user.value = JSON.parse(storedUser);
-      console.log('User on mount:', user.value); 
-    } catch (error) {
-      console.error('Error parsing stored user:', error);
-    }
-  }
-});
-
-const username = computed(() => (user.value ? user.value.name : 'Guest')); // Updated property
-const isAuthenticated = computed(() => !!user.value);
-const dashboardLink = computed(() => {
-  if (user.value) {
-    console.log('Determining dashboard link for role:', user.value.role); // Debug log
-    return user.value.role === 'jobseeker' ? '/jobseeker-dashboard' : '/employer-dashboard';
-  }
-  return '/';
-});
-
-const router = useRouter();
-
-const logout = () => {
-  localStorage.removeItem('user');
-  user.value = null;
-  router.push('/login');
-};
-
-const toggleDropdown = () => {
-  dropdownVisible.value = !dropdownVisible.value;
-};
-</script>
-
 <template>
   <nav>
     <div class="flex items-center justify-between">
@@ -64,14 +20,14 @@ const toggleDropdown = () => {
             </svg>
           </button>
         </span>
-        <div v-show="dropdownVisible" class="absolute right-0 w-56 mt-2 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg outline-none">
+        <div v-if="dropdownVisible" class="absolute right-0 w-56 mt-2 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg outline-none">
           <div class="py-1">
-            <RouterLink
-              :to="dashboardLink"
+            <button
+              @click="navigateToDashboard"
               class="text-gray-600 flex justify-between w-full px-4 py-2 text-lg leading-5 text-left hover:bg-gray-300"
             >
               User Dashboard
-            </RouterLink>
+            </button>
           </div>
           <div class="py-1">
             <a
@@ -90,6 +46,59 @@ const toggleDropdown = () => {
     </div>
   </nav>
 </template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const user = ref(null);
+const dropdownVisible = ref(false);
+
+onMounted(() => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      user.value = JSON.parse(storedUser);
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+    }
+  }
+});
+
+const username = computed(() => (user.value ? user.value.name : 'Guest'));
+const isAuthenticated = computed(() => !!user.value);
+const dashboardLink = computed(() => {
+  if (user.value) {
+    console.log('User Role:', user.value.role); 
+    return user.value.role === 'JobSeeker' ? '/jobseeker-dashboard' : '/employer-dashboard';
+  }
+  return '/';
+});
+
+
+const router = useRouter();
+
+const logout = () => {
+  console.log('Logging out');
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('employerId');
+  user.value = null;
+  dropdownVisible.value = false;
+  router.push('/login');
+};
+
+const toggleDropdown = () => {
+  dropdownVisible.value = !dropdownVisible.value;
+};
+
+const navigateToDashboard = () => {
+  console.log('Navigating to:', dashboardLink.value);
+  router.push(dashboardLink.value)
+    .catch(err => console.error('Navigation Error:', err));
+  dropdownVisible.value = false;
+};
+</script>
 
 <style scoped>
 </style>
