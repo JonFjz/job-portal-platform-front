@@ -8,20 +8,14 @@ const props = defineProps({
 })
 console.log('Job:', props.job) // Debug log
 console.log('Job ID:', props.job.jobId) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
 
 // Create a ref to manage the bookmark state
 const router = useRouter()
 
 // Method to navigate to the job detail page
 const navigateToJobDetail = () => {
-    router.push(`/jobs/${props.job.id}`)
+    console.log('Navigating to job detail:', props.job.jobId)
+    router.push(`/jobs/${props.job.jobId}`)
 }
 </script>
 
@@ -45,7 +39,7 @@ const navigateToJobDetail = () => {
                     </div>
                 </div>
                 <!-- bookmark icon -->
-                <Bookmark :jobId="props.job.id" />
+                <Bookmark :jobId="props.job.jobId" />
             </div>
             <!-- tags -->
             <div class="flex items-center justify-start">

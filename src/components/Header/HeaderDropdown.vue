@@ -21,7 +21,7 @@ const isAuthenticated = computed(() => !!user.value)
 const dashboardLink = computed(() => {
     if (user.value) {
         console.log('User Role:', user.value.role)
-        return user.value.role === 'JobSeeker' ? '/jobseeker-dashboard' : '/employer-dashboard'
+        return user.value.role === 'JobSeeker' ? '/jobseeker-dashboard/' : '/employer-dashboard/'
     }
     return '/'
 })

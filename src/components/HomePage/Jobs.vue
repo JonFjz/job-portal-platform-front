@@ -13,6 +13,11 @@ const isLoading = ref(false)
 const fetchJobById = async (id) => {
     try {
         const response = await axios.get(`https://localhost:7136/api/JobPostings/${id}`)
+        console.log(`Fetched job with ID ${id}`, response.data)
+        console.log(`Fetched job with ID ${id}`, response.data)
+        console.log(`Fetched job with ID ${id}`, response.data)
+        console.log(`Fetched job with ID ${id}`, response.data)
+        console.log(`Fetched job with ID ${id}`, response.data)
         return response.data
     } catch (error) {
         console.error(`Failed to fetch job with ID ${id}`, error)
@@ -28,10 +33,11 @@ const fetchJobs = async () => {
     let jobFetchedCount = 0 // Count of successfully fetched jobs
 
     while (jobFetchedCount < pageSize) {
-        const job = await fetchJobById(id++)
+        const job = await fetchJobById(id)
         if (job) {
             jobs.value.push({ ...job, jobId: id }) // Ensure job.id exists
             jobFetchedCount++
+            id++
         } else {
             break // Stop fetching if an error occurs
         }
@@ -93,6 +99,7 @@ const nextPage = () => {
                 </template>
                 <!-- Job cards -->
                 <template v-else>
+                    <!-- for each  -->
                     <JobCard v-for="job in jobs" :key="job.jobId" :job="job" />
                 </template>
             </div>

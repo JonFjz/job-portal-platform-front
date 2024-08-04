@@ -19,23 +19,66 @@ const newJob = ref({
     workLevel: null,
     description: '',
     responsibilities: '',
+    requiredSkills: '',
     notificationEmail: ''
 })
 
 const employerId = ref('')
 const jobs = ref([])
+const loading = ref(false)
+
+// Mapping objects for work levels and work types
+const workLevelMapping = {
+    0: 'Junior',
+    1: 'Mid',
+    2: 'Senior',
+    3: 'Lead',
+    4: 'Manager',
+    5: 'Director',
+    6: 'Executive'
+}
+
+const workTypeMapping = {
+    0: 'FullTime',
+    1: 'PartTime',
+    2: 'Contract',
+    3: 'Temporary',
+    4: 'Internship'
+}
 
 onMounted(() => {
-    employerId.value = localStorage.getItem('employerId') // null
-    fetchJobs()
+    employerId.value = localStorage.getItem('employerId')
+    console.log('Local Storage:', localStorage)
+    fetchJobs(1, 10)
 })
 
-const fetchJobs = async () => {
+const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
+    const token = localStorage.getItem('token')
+
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            Accept: '*/*'
+        }
+    }
+
     try {
         const response = await axios.get(
-            `https://localhost:7136/api/JobPostings/by-employer/${employerId.value}`
+            `https://localhost:7136/api/JobPostings/my-job-postings`,
+            config
         )
-        jobs.value = response.data
+        console.log('Fetched jobs:', response.data)
+        console.log('Fetched jobs:', response.data)
+        console.log('Fetched jobs:', response.data)
+        console.log('Fetched jobs:', response.data)
+        console.log('Fetched jobs:', response.data)
+        jobs.value = response.data.items.map((job) => ({
+            ...job,
+            workLevel: workLevelMapping[job.workLevel],
+            workType: workTypeMapping[job.workType]
+        }))
+        console.log('Fetched job:', JSON.stringify(jobs.value[2], null, 2))
     } catch (error) {
         console.error('Error fetching jobs:', error)
     }
@@ -50,6 +93,8 @@ const handleSubmit = () => {
 }
 
 const addJob = async () => {
+    loading.value = true
+
     const token = localStorage.getItem('token')
 
     const config = {
@@ -73,6 +118,7 @@ const addJob = async () => {
                 workLevel: parseInt(newJob.value.workLevel),
                 description: newJob.value.description,
                 responsibilities: newJob.value.responsibilities,
+                requiredSkills: newJob.value.requiredSkills,
                 notificationEmail: newJob.value.notificationEmail
             },
             config
@@ -86,6 +132,8 @@ const addJob = async () => {
         } else {
             console.error('Error adding job:', error.message)
         }
+    } finally {
+        loading.value = false
     }
 }
 
@@ -106,11 +154,30 @@ const updateJob = async () => {
 }
 
 const deleteJob = async (id) => {
+    const token = localStorage.getItem('token')
+
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            Accept: '*/*'
+        }
+    }
+
+    console.log('Deleting job:', id)
+
     try {
-        await axios.delete(`http://localhost:3000/jobs/${id}`)
+        const response = await axios.delete(`https://localhost:7136/api/JobPostings/${id}`, config)
+        console.log('Delete response:', response)
         await fetchJobs()
     } catch (error) {
-        console.error('Error deleting job:', error)
+        if (error.response) {
+            console.error('Error response data:', error.response.data)
+            console.error('Error response status:', error.response.status)
+            console.error('Error response headers:', error.response.headers)
+        } else {
+            console.error('Error deleting job:', error.message)
+        }
     }
 }
 
@@ -122,6 +189,7 @@ const resetForm = () => {
         workLevel: null,
         description: '',
         responsibilities: '',
+        requiredSkills: '',
         notificationEmail: ''
     }
     isEditing.value = false
@@ -258,8 +326,11 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
                                 required
                             >
                                 <option value="">Select Work Type</option>
-                                <option value="1">Full-time</option>
-                                <option value="2">Part-time</option>
+                                <option value="0">Full-time</option>
+                                <option value="1">Part-time</option>
+                                <option value="2">Contract</option>
+                                <option value="3">Temporary</option>
+                                <option value="4">Internship</option>
                             </select>
                         </div>
 
@@ -274,9 +345,13 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
                                 required
                             >
                                 <option value="">Select Work Level</option>
-                                <option value="1">Junior</option>
-                                <option value="2">Mid-level</option>
-                                <option value="3">Senior</option>
+                                <option value="0">Junior</option>
+                                <option value="1">Mid-level</option>
+                                <option value="2">Senior</option>
+                                <option value="3">Lead</option>
+                                <option value="4">Manager</option>
+                                <option value="5">Director</option>
+                                <option value="6">Executive</option>
                             </select>
                         </div>
 
@@ -294,7 +369,10 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
                         </div>
 
                         <div class="mb-4">
-                            <label for="responsibilities" class="block text-gray-700 font-semibold mb-2">
+                            <label
+                                for="responsibilities"
+                                class="block text-gray-700 font-semibold mb-2"
+                            >
                                 Responsibilities
                             </label>
                             <textarea
@@ -305,9 +383,27 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
                                 required
                             ></textarea>
                         </div>
+                        <div class="mb-4">
+                            <label
+                                for="requiredSkills"
+                                class="block text-gray-700 font-semibold mb-2"
+                            >
+                                Required Skills
+                            </label>
+                            <textarea
+                                v-model="newJob.requiredSkills"
+                                id="requiredSkills"
+                                rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md"
+                                required
+                            ></textarea>
+                        </div>
 
                         <div class="mb-4">
-                            <label for="notificationEmail" class="block text-gray-700 font-semibold mb-2">
+                            <label
+                                for="notificationEmail"
+                                class="block text-gray-700 font-semibold mb-2"
+                            >
                                 Notification Email
                             </label>
                             <input
@@ -321,10 +417,35 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
 
                         <div class="flex justify-end space-x-4">
                             <button
+                                id="Add Job"
                                 type="submit"
                                 class="bg-teal-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-teal-700 transition-colors"
+                                :disabled="loading"
                             >
-                                {{ isEditing ? 'Update Job' : 'Add Job' }}
+                                <span v-if="loading">
+                                    <svg
+                                        class="animate-spin h-5 w-5 text-white inline-block mr-2"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            class="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            stroke-width="4"
+                                        ></circle>
+                                        <path
+                                            class="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 0116 0H4z"
+                                        ></path>
+                                    </svg>
+                                    Loading...
+                                </span>
+                                <span v-else>{{ isEditing ? 'Update Job' : 'Add Job' }}</span>
                             </button>
                             <button
                                 @click="resetForm"
@@ -340,14 +461,43 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
                 <div class="mt-6">
                     <h3 class="text-xl font-semibold mb-4">Your Jobs</h3>
                     <ul class="space-y-4">
-                        <li v-for="job in jobs" :key="job.id" class="bg-white p-4 rounded-lg shadow-md">
-                            <h4 class="text-lg font-semibold">{{ job.title }}</h4>
-                            <p class="text-gray-600">{{ job.closingDate }}</p>
-                            <p class="text-gray-600">{{ job.workType }}</p>
-                            <p class="text-gray-600">{{ job.workLevel }}</p>
-                            <p class="text-gray-600">{{ job.description }}</p>
-                            <p class="text-gray-600">{{ job.responsibilities }}</p>
-                            <p class="text-gray-600">{{ job.notificationEmail }}</p>
+                        <li
+                            v-for="job in jobs"
+                            :key="job.id"
+                            class="bg-white p-4 rounded-lg shadow-md"
+                        >
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Title</h4>
+                                <h4 class="text-gray-600">{{ job.title }}</h4>
+                            </div>
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Post Date</h4>
+                                <p class="text-gray-600">{{ job.datePosted }}</p>
+                            </div>
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Closing Date</h4>
+                                <p class="text-gray-600">{{ job.closingDate }}</p>
+                            </div>
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Work Type</h4>
+                                <p class="text-gray-600">{{ job.workType }}</p>
+                            </div>
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Work Level</h4>
+                                <p class="text-gray-600">{{ job.workLevel }}</p>
+                            </div>
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Description</h4>
+                                <p class="text-gray-600 line-clamp-2">{{ job.description }}</p>
+                            </div>
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Title</h4>
+                                <p class="text-gray-600 line-clamp-2">{{ job.responsibilities }}</p>
+                            </div>
+                            <div class="pb-4">
+                                <h4 class="text-2xl font-semibold">Job Notification Email</h4>
+                                <p class="text-gray-600">{{ job.notificationEmail }}</p>
+                            </div>
                             <div class="flex space-x-2 mt-4">
                                 <button
                                     @click="editJob(job)"
@@ -370,5 +520,4 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
     </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

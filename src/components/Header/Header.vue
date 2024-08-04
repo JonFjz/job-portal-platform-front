@@ -2,8 +2,24 @@
 import HeaderLink from './HeaderLink.vue'
 import HeaderDropdown from './HeaderDropdown.vue'
 import ThemeToggle from './HeaderThemeToggle.vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import VueJobsLogo from '../../assets/vueJobsLogo.svg'
+
+// Retrieve user information from local storage
+const user = JSON.parse(localStorage.getItem('user') || '{}')
+
+// Get the router instance
+const router = useRouter()
+
+// Function to handle the "Post a job" button click
+const handlePostJobClick = () => {
+    if (user.name) {
+        // Check if user is logged in
+        router.push('/employer-dashboard/') // Redirect to employer dashboard
+    } else {
+        router.push('/login') // Redirect to login page if not logged in
+    }
+}
 </script>
 
 <template>
@@ -61,12 +77,9 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
                 <div
                     class="flex flex-row justify-center items-center gap-x-5 pt-4 text-gray-600 md:gap-x-4 lg:pt-0"
                 >
-                    <button class="bg-yellow-400 px-4 py-2 rounded-md">Post a job</button>
-                    <!-- login button with dissaper if logged in -->
-                    <!-- <button class="bg-slate-100 px-4 py-2 rounded-md focus:outline-none focus:ring-2">
-                    Login
-                </button> -->
-                    <!-- instead this will show witha dropdown -->
+                    <button class="bg-yellow-400 px-4 py-2 rounded-md" @click="handlePostJobClick">
+                        Post a job
+                    </button>
                     <HeaderDropdown />
                     <ThemeToggle />
                 </div>
