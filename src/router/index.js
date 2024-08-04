@@ -74,7 +74,7 @@ const routes = [
     {
         path: '/learn',
         name: 'learn',
-        component: LearnView
+        component: LearnView,
         meta: { requiresAuth: true, role: 'Employer' }
     }
 ]
