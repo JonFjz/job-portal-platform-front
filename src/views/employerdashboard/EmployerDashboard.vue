@@ -69,11 +69,7 @@ const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
             config
         )
         console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        jobs.value = response.data.items.map((job) => ({
+        jobs.value = response.data.items.map(job => ({
             ...job,
             workLevel: workLevelMapping[job.workLevel],
             workType: workTypeMapping[job.workType]
@@ -137,7 +133,7 @@ const addJob = async () => {
     }
 }
 
-const editJob = (job) => {
+const editJob = job => {
     newJob.value = { ...job }
     isEditing.value = true
     showAddJobForm.value = true
@@ -153,7 +149,7 @@ const updateJob = async () => {
     }
 }
 
-const deleteJob = async (id) => {
+const deleteJob = async id => {
     const token = localStorage.getItem('token')
 
     const config = {
@@ -196,6 +192,10 @@ const resetForm = () => {
     showAddJobForm.value = false
 }
 
+const viewApplications = jobId => {
+    router.push(`/employer-dashboard/job-applications/${jobId}`)
+}
+
 const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
 </script>
 
@@ -222,32 +222,6 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
                     </RouterLink>
                 </li>
 
-                <li>
-                    <RouterLink
-                        to="/employer-dashboard/job-listings"
-                        class="text-gray-700 hover:text-teal-600 flex items-center space-x-2 p-2 rounded-md transition-colors"
-                    >
-                        <span>Jobs</span>
-                    </RouterLink>
-                </li>
-
-                <li>
-                    <RouterLink
-                        to="/employer-dashboard/job-applications"
-                        class="text-gray-700 hover:text-teal-600 flex items-center space-x-2 p-2 rounded-md transition-colors"
-                    >
-                        <svg
-                            class="w-6 h-6 fill-current text-gray-500"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                d="M7 2a1 1 0 00-1 1v1h2V3a1 1 0 00-1-1zm6 0a1 1 0 00-1 1v1h2V3a1 1 0 00-1-1zM5 7h10v1H5V7zM5 9h10v1H5V9zM5 11h10v1H5v-1zM4 6V5a1 1 0 011-1h10a1 1 0 011 1v1H4z"
-                            ></path>
-                        </svg>
-                        <span>Applications</span>
-                    </RouterLink>
-                </li>
                 <li>
                     <RouterLink
                         to="/employer-dashboard/profile"
@@ -510,6 +484,12 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
                                     class="bg-red-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 transition-colors"
                                 >
                                     Delete
+                                </button>
+                                <button
+                                    @click="viewApplications(job.id)"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition-colors"
+                                >
+                                    Applications
                                 </button>
                             </div>
                         </li>

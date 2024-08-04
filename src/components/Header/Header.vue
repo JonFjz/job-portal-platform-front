@@ -4,6 +4,9 @@ import HeaderDropdown from './HeaderDropdown.vue'
 import ThemeToggle from './HeaderThemeToggle.vue'
 import { RouterLink, useRouter } from 'vue-router'
 import VueJobsLogo from '../../assets/vueJobsLogo.svg'
+import { useToast } from 'vue-toast-notification' // Import the toast library
+
+const toast = useToast() // Initialize toast
 
 // Retrieve user information from local storage
 const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -13,11 +16,15 @@ const router = useRouter()
 
 // Function to handle the "Post a job" button click
 const handlePostJobClick = () => {
-    if (user.name) {
+    console.log('user.role', user.role) // Debug log
+    if (user.role == 'employer') {
         // Check if user is logged in
         router.push('/employer-dashboard/') // Redirect to employer dashboard
+    } else if (user.role == 'JobSeeker') {
+        toast.warning('Only employers can post jobs') // Display a warning toast
     } else {
-        router.push('/login') // Redirect to login page if not logged in
+        toast.warning('Please log in as an employer to post a job') // Display a warning toast
+        router.push('/login') // Redirect to the login page
     }
 }
 </script>
@@ -53,19 +60,9 @@ const handlePostJobClick = () => {
                 <div
                     class="text-xl text-center items-center gap-x-5 pt-4 md:gap-x-4 lg:text-lg lg:flex lg:pt-0 font-switzer"
                 >
-                <HeaderLink
-                        to="/companies-by-industry"
-                        text="Companies"
-                        class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
-                    />
                     <HeaderLink
                         to="/jobs"
                         text="Jobs"
-                        class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
-                    />
-                    <HeaderLink
-                        to="/hire-dev"
-                        text="Hire Vue.Js Developers"
                         class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                     />
                     <HeaderLink

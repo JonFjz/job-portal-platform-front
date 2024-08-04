@@ -25,6 +25,19 @@ const config = {
     }
 }
 const toggleBookmark = async () => {
+    if (!token) {
+        toast.open({
+            message: 'Please log in to bookmark jobs.',
+            type: 'warning',
+            position: 'bottom-right',
+            duration: 3000,
+            dismissible: true,
+            queue: false,
+            pauseOnHover: true
+        })
+        return
+    }
+
     console.log('Toggling bookmark for jobId:', props.jobId) // Debug log
     isBookmarked.value = !isBookmarked.value
     const message = isBookmarked.value
@@ -79,7 +92,7 @@ const checkBookmarkStatus = async () => {
         console.log('Bookmarked jobs:', bookmarkedJobs.value[0].jobPostingId)
         console.log('Bookmarked jobs:', bookmarkedJobs.value[1].jobPostingId)
 
-        isBookmarked.value = bookmarkedJobs.value.some((job) => job.jobPostingId === props.jobId)
+        isBookmarked.value = bookmarkedJobs.value.some(job => job.jobPostingId === props.jobId)
         console.log('isBookmarked:', isBookmarked.value)
     } catch (error) {
         // console.error(error)

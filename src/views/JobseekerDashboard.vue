@@ -22,7 +22,7 @@ const user = ref({
 })
 const applications = ref([])
 const currentView = ref('settings') // default view
-
+const hasResume = ref(false) // Track if the user has a resume
 const token = localStorage.getItem('token')
 const config = {
     headers: {
@@ -46,6 +46,12 @@ const getJobSeekerProfile = async () => {
         const response = await axios.get(`https://localhost:7136/api/JobSeekers/profile`, config)
         profile.value = response.data
         profile.value.dateOfBirth = profile.value.dateOfBirth.split('T')[0]
+        hasResume.value = response.data.resumeUploaded || false // Adjust based on your API response
+        if (hasResume.value) {
+            toast.info(
+                'You have a resume uploaded. To change it, please delete the current one first.'
+            )
+        }
     } catch (error) {
         console.log('Error:', error)
         router.push('/login')
@@ -82,7 +88,6 @@ const updateProfile = async () => {
             updatedProfile,
             config
         )
-        console.log('Profile updated:', response.data)
         toast.success('Profile updated successfully')
     } catch (error) {
         console.error('Error updating profile:', error)
@@ -91,13 +96,14 @@ const updateProfile = async () => {
 
     // In another request, send only the resume and the config, nothing else
     if (resumeFile.value) {
-        const formData = new FormData()
-        formData.append('File', resumeFile.value) // Ensure 'File' matches backend expectation
+        const resumeByteString = new FormData()
+        resumeByteString.append('File', resumeFile.value) // Ensure 'File' matches backend expectation
 
+        console.log('Uploading resume:', resumeFile.value)
         try {
             const response = await axios.post(
                 'https://localhost:7136/api/Resumes/upload',
-                formData,
+                resumeByteString,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -109,61 +115,34 @@ const updateProfile = async () => {
             console.log('Resume uploaded:', response.data)
             toast.success('Resume uploaded successfully')
         } catch (error) {
-            console.error('Error uploading resume:', error)
-            toast.error('Error uploading resume')
+            console.error('Resume already existant, delete it then add another:', error)
+            toast.error('Resume already existant, delete it then add another')
         }
     } else {
         toast.warning('Please select a resume file to upload')
     }
 }
 
-const resumeDownloadLink = ref('') // Reactive variable for resume download link
-
 const downloadOwnResume = async () => {
     try {
         const response = await axios.get('https://localhost:7136/api/Resumes/download', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: 'application/octet-stream'
-            }
-            // responseType: 'blob' // Ensure the response is treated as a blob
+                Accept: 'application/pdf' // Specify expected file type
+            },
+            responseType: 'blob' // Important to handle binary data
         })
 
-        console.log('Resume downloaded:', response)
-
-        // Extract the file name from the content-disposition header
-        const contentDisposition =
-            response.headers['content-disposition'] || response.headers['Content-Disposition']
-
-        console.log('Content-Disposition:', contentDisposition)
-        let fileName = 'resume'
-
-        if (contentDisposition) {
-            const matches = /filename="([^"]+)"/.exec(contentDisposition)
-            const matchesUtf8 = /filename\*=UTF-8''([^"]+)/.exec(contentDisposition)
-
-            if (matchesUtf8 && matchesUtf8[1]) {
-                fileName = decodeURIComponent(matchesUtf8[1])
-            } else if (matches && matches[1]) {
-                fileName = matches[1]
-            }
-        }
-
-        // Create a link element
-        const url = window.URL.createObjectURL(
-            new Blob([response.data], { type: 'application/octet-stream' })
-        )
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', fileName) // Set the file name
-        document.body.appendChild(link)
-        link.click()
-
-        // Clean up and remove the link element
-        link.parentNode.removeChild(link)
+        // Create a blob link to download the file
+        const blob = new Blob([response.data], { type: 'application/pdf' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'resume.pdf' // Set the filename
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
         window.URL.revokeObjectURL(url)
-
-        toast.success('Resume downloaded successfully')
     } catch (error) {
         console.error('Error downloading resume:', error)
         toast.error('Error downloading resume')
@@ -180,17 +159,42 @@ const deleteOwnResume = async () => {
         })
         console.log('Resume deleted:', response.data)
         toast.success('Resume deleted successfully')
+        hasResume.value = false // Update the state after deletion
     } catch (error) {
         console.error('Error deleting resume:', error)
         toast.error('Error deleting resume')
     }
 }
-const handleFileChange = (event) => {
-    resumeFile.value = event.target.files[0]
+
+const handleFileChange = event => {
+    const file = event.target.files[0]
+    if (file && file.type === 'application/pdf') {
+        resumeFile.value = file
+    } else {
+        toast.error('Please upload a valid PDF file.')
+        resumeFile.value = null // Reset if the file type is invalid
+    }
+}
+
+const fetchJobApplications = async () => {
+    try {
+        const response = await axios.get('https://localhost:7136/by-jobseeker', config)
+        applications.value = response.data.items // Store the applications
+    } catch (error) {
+        console.error('Error fetching job applications:', error)
+        toast.error('Error fetching job applications')
+    }
 }
 
 onMounted(() => {
+    console.log('token from local', token)
+    console.log('token from local', token)
+    console.log('token from local', token)
+    console.log('token from local', token)
+    console.log('token from local', token)
+    console.log('token from local', token)
     getJobSeekerProfile()
+    fetchJobApplications()
     userId.value = getUserId() // get the user ID dynamically
 })
 </script>
@@ -274,6 +278,12 @@ onMounted(() => {
                         <span>Applications</span>
                     </button>
                 </li>
+                <button
+                    @click="goBack"
+                    class="mt-4 bg-gray-400 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-500 transition-colors"
+                >
+                    Back
+                </button>
             </ul>
         </aside>
         <main class="flex-1 p-6 overflow-y-auto text-gray-600">
@@ -346,7 +356,7 @@ onMounted(() => {
                         <button
                             @click="downloadOwnResume"
                             type="button"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                         >
                             Download Resume
                         </button>
@@ -358,6 +368,7 @@ onMounted(() => {
                             Delete Resume
                         </button>
                     </div>
+                    <p>* make sure to click save changes after uploading a new resume</p>
                 </form>
             </div>
 
@@ -368,10 +379,23 @@ onMounted(() => {
             </div>
 
             <!-- Applications View -->
+            <!-- Applications View -->
             <div v-if="currentView === 'applications'">
                 <h2 class="text-xl font-bold mb-4">Applications</h2>
-                <div v-for="application in applications" :key="application.id" class="mb-4">
-                    <JobCard :job="application.job" />
+                <div
+                    v-for="application in applications"
+                    :key="application.id"
+                    class="bg-gray-100 p-4 mb-4 rounded-md"
+                >
+                    <p>
+                        <strong>Applied On:</strong>
+                        {{ new Date(application.appliedOn).toLocaleDateString() }}
+                    </p>
+                    <p><strong>Company Name:</strong> {{ application.jobPosting.companyName }}</p>
+                    <p><strong>Job Title:</strong> {{ application.jobPosting.title }}</p>
+                    <p><strong>Work Type:</strong> {{ application.jobPosting.workType }}</p>
+                    <p><strong>Work Level:</strong> {{ application.jobPosting.workLevel }}</p>
+                    <p><strong>Status:</strong> {{ application.jobApplicationStatus }}</p>
                 </div>
             </div>
         </main>

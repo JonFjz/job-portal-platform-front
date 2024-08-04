@@ -3,6 +3,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import ReviewModal from '@/components/ReviewModal.vue'
+import { useToast } from 'vue-toast-notification'
+
+const toast = useToast()
 
 const route = useRoute()
 const jobId = ref(route.params.id)
@@ -20,7 +23,7 @@ const config = {
     }
 }
 
-const fetchJobDetails = async (id) => {
+const fetchJobDetails = async id => {
     id = Number(id)
     if (!id) return
     try {
@@ -33,29 +36,71 @@ const fetchJobDetails = async (id) => {
     }
 }
 
-const formatDateString = (dateString) => {
+const formatDateString = dateString => {
     if (!dateString) return 'Nothing to show'
     return dateString.split('T')[0]
 }
 
-const postReview = async (reviewData) => {
-    if (reviewData.review.trim() && reviewData.rating && jobId.value) {
-        const review = {
-            jobId: jobId.value,
-            company: jobDetails.value.company,
-            review: reviewData.review,
-            rating: reviewData.rating
-        }
+const handleApplication = async () => {
+    if (!token) {
+        toast.error('You need to login to apply for this job')
+        return
+    }
+    try {
+        const response = await axios.get('https://localhost:7136/api/JobSeekers/profile', config)
+        console.log('Application response:', response.data.firstName)
+        console.log('Application response:', response.data.lastName)
         try {
-            await axios.post('http://localhost:3000/reviews', review, {
-                headers: { 'Content-Type': 'application/json' }
-            })
-            // fetchReviews(jobDetails.value.company) // refresh reviews
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                    Accept: '*/*'
+                }
+            }
+            const resumeId = await axios.get('https://localhost:7136/api/resumes', config)
+            const formData = new FormData()
+            formData.append('JobPostingId', Number(jobId.value))
+            formData.append('FirstName', response.data.firstName)
+            formData.append('LastName', response.data.lastName)
+            formData.append('ResumeId', resumeId.data.id)
+            formData.append('NewResumeFile', null)
+
+            console.log('Application data:', formData)
+            try {
+                await axios.post('https://localhost:7136/apply', formData, config)
+                toast.success('Application submitted successfully')
+            } catch (error) {
+                console.error('Application already submitted:', error)
+                toast.error('Application already submitted')
+            }
         } catch (error) {
-            console.error('Error posting review:', error)
+            console.error('Error fetching resume:', error)
+            toast.error('You need to upload a resume to apply for this job')
         }
+    } catch (error) {
+        console.error('Error submitting application:', error)
     }
 }
+
+// const postReview = async (reviewData) => {
+//     if (reviewData.review.trim() && reviewData.rating && jobId.value) {
+//         const review = {
+//             jobId: jobId.value,
+//             company: jobDetails.value.company,
+//             review: reviewData.review,
+//             rating: reviewData.rating
+//         }
+//         try {
+//             await axios.post('http://localhost:3000/reviews', review, {
+//                 headers: { 'Content-Type': 'application/json' }
+//             })
+//             // fetchReviews(jobDetails.value.company) // refresh reviews
+//         } catch (error) {
+//             console.error('Error posting review:', error)
+//         }
+//     }
+// }
 
 // computed property to calculate the average rating from all reviews
 const averageRating = computed(() => {
@@ -75,7 +120,7 @@ onMounted(() => {
 
 watch(
     () => route.params.id,
-    (newId) => {
+    newId => {
         jobId.value = newId
         fetchJobDetails(newId)
     }
@@ -83,6 +128,12 @@ watch(
 
 // controlling the visibility of the review modal
 const openReviewModal = () => {
+    // check if user is logged in
+    if (!token) {
+        toast.error('You need to login to leave a review')
+        return
+    }
+
     showReviewModal.value = true
 }
 
@@ -182,7 +233,7 @@ const closeReviewModal = () => {
                     </div>
                     <div class="flex items-center justify-center w-full">
                         <button
-                            @click="openApplicationForm"
+                            @click="handleApplication"
                             class="w-full bg-teal-800 text-white px-6 py-3 rounded-sm font-semibold"
                         >
                             Apply Now 🔗

@@ -1,5 +1,28 @@
 <script setup>
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import { useToast } from 'vue-toast-notification' // Import the toast library
+
+const toast = useToast() // Initialize toast
+
+// Retrieve user information from local storage
+const user = JSON.parse(localStorage.getItem('user') || '{}')
+
+// Get the router instance
+const router = useRouter()
+
+// Function to handle the "Post a job" button click
+const handlePostJobClick = () => {
+    console.log('user.role', user.role) // Debug log
+    if (user.role == 'employer') {
+        // Check if user is logged in
+        router.push('/employer-dashboard/') // Redirect to employer dashboard
+    } else if (user.role == 'JobSeeker') {
+        toast.warning('Only employers can post jobs') // Display a warning toast
+    } else {
+        toast.warning('Please log in as an employer to post a job') // Display a warning toast
+        router.push('/login') // Redirect to the login page
+    }
+}
 </script>
 
 <template>
@@ -22,6 +45,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
                 </div>
                 <button
                     class="dark:border-2 dark:border-green-500 dark:text-gray-300 dark:bg-gray-700 bg-yellow-500 px-8 py-4 font-semibold rounded-2xl shadow-md hover:bg-yellow-600 transition-colors text-black"
+                    @click="handlePostJobClick"
                 >
                     Post a job for $2
                 </button>
