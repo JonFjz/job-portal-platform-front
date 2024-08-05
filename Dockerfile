@@ -10,11 +10,9 @@ COPY . .
 
 RUN npm run build
 
-RUN npm run proxy-server &
+RUN npm run fetch-courses
 
 RUN npm install -g http-server
-
-EXPOSE 3000
 
 EXPOSE 8080
 
