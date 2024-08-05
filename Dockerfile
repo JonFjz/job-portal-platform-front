@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-RUN npm run proxy-server
+RUN npm run proxy-server &
 
 RUN npm install -g http-server
 
