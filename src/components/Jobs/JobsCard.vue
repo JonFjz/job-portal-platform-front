@@ -12,98 +12,97 @@ const user = JSON.parse(localStorage.getItem('user') || '{}')
 const navigateToJobDetail = (id) => {
     router.push(`/jobs/${id}`)
 }
-
-const handleBookmarkClick = (event, job) => {
-    event.stopPropagation()
-
-    if (!user || !user.id) {
-        // user is not logged in
-        router.push({ name: 'register' })
-        // do not call bookmarkJob here
-    } else {
-        // user is logged in / handle bookmark
-        bookmarkJob(job)
-    }
-}
-
-const bookmarkJob = (job) => {
-    console.log('Bookmark saved for job:', job)
-}
 </script>
 
 <template>
-    <div
-        @click="navigateToJobDetail(props.job.id)"
-        class="dark:bg-gray-700 dark:text-gray-300 transition-all group duration-200 ease-in-out hover:border-l-8 hover:ring-2 ring-green-500 hover:border-green-500 cursor-pointer relative block border rounded-xl p-4 mb-4"
-        :class="{ 'bg-yellow-200': job.featured, 'bg-white': !job.featured }"
-    >
-        <div
-            v-if="job.featured"
-            class="dark:text-yellow-300 absolute top-3 right-4 font-bold text-xs text-yellow-800"
-        >
-            <i class=""></i> Featured
-        </div>
-        <Bookmark
-            class="absolute top-10 right-4"
-            :jobId="job.id"
-            @click.stop="handleBookmarkClick($event, job)"
-        />
-        <div class="flex flex-col justify-center md:flex-row md:justify-start md:items-center">
-            <div class="flex items-center">
-                <!-- <div class="overflow-hidden w-12 h-12 md:w-12 md:h-12 rounded-xl">
-                    <img
-                        :src="job.logo"
-                        alt="Logo"
-                        class="object-contain w-full h-full"
-                        loading="lazy"
-                    />
-                </div> -->
-                <div class="ml-3">
-                    <div class="font-display text-lg leading-tight font-bold">{{ job.title }}</div>
-                    <div class="flex items-center text-sm font-medium text-muted">
-                        at {{ job.company }}
-                    </div>
-                </div>
-            </div>
-            <div
-                class="hover:dark:text-gray-300 ml-auto font-display font-bold transition-opacity duration-400 absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 text-sm"
-            >
-                View details <i class="far fa-arrow-right fa-fw ml-1" aria-hidden="true"></i>
+    <div class="job-card" :class="{ 'bg-yellow-200': job.featured, 'bg-white': !job.featured }">
+        <div v-if="job.featured" class="featured-label"><i class=""></i> Featured</div>
+        <Bookmark class="bookmark-icon" :jobId="job.id" />
+
+        <div class="job-info">
+            <div class="job-details">
+                <div class="job-title">{{ job.title }}</div>
+                <div class="job-type">Type: {{ job.workType }}</div>
+                <div class="job-position">Position: {{ job.workLevel }}</div>
             </div>
         </div>
-        <div class="text-xs mt-3 flex gap-x-4 gap-y-1 flex-wrap items-center md:gap-2">
-            <span
-                v-if="job.remote"
-                class="inline-block bg-green-100 px-1.5 py-0.5 rounded-lg dark:border-2 dark:border-green-500 dark:text-gray-300 dark:bg-gray-700"
-            >
+        <div class="job-tags">
+            <span v-if="job.remote" class="job-tag remote-tag">
                 <i class="fa-regular fa-check-circle text-green-500" aria-hidden="true"></i> Remote
             </span>
-            <span
-                v-if="job.hybrid"
-                class="inline-block bg-green-100 px-1.5 py-0.5 rounded-lg dark:border-2 dark:border-green-500 dark:text-gray-300 dark:bg-gray-700"
-            >
-                <i class=""></i> Hybrid
-            </span>
-            <span
-                v-if="job.salary"
-                class="inline-block bg-purple-100 px-1.5 py-0.5 rounded-lg dark:border-2 dark:border-green-500 dark:text-gray-300 dark:bg-gray-700"
-                >USD {{ job.salary }}/yr</span
-            >
-            <span
-                v-if="job.location"
-                class="inline-block bg-teal-100 px-1.5 py-0.5 rounded-lg dark:border-2 dark:border-green-500 dark:text-gray-300 dark:bg-gray-700"
-            >
-                <i class=""></i> {{ job.location }}
-            </span>
+            <span v-if="job.hybrid" class="job-tag hybrid-tag"> <i class=""></i> Hybrid </span>
+            <span v-if="job.salary" class="job-tag salary-tag">USD {{ job.salary }}/yr</span>
+            <span v-if="job.location" class="job-tag location-tag">{{ job.location }}</span>
         </div>
+        <button @click="navigateToJobDetail(props.job.id)" class="know-more-button">
+            Know More
+        </button>
     </div>
 </template>
 
-<style scoped>
+<style scoped lang="sugass">
 .job-card {
-    margin-bottom: 1rem;
+    @apply dark:bg-gray-700 dark:text-gray-300 transition-all group duration-200 ease-in-out hover:border-l-8 hover:ring-2 ring-green-500 hover:border-green-500 relative block border rounded-xl p-4 mb-4;
+
+    &.bg-yellow-200 {
+        @apply bg-yellow-200;
+    }
+
+    &.bg-white {
+        @apply bg-white;
+    }
 }
-.job-card:last-child {
-    margin-bottom: 0;
+
+.featured-label {
+    @apply dark:text-yellow-300 absolute top-3 right-4 font-bold text-xs text-yellow-800;
+}
+
+.bookmark-icon {
+    @apply absolute top-10 right-4;
+}
+
+.job-info {
+    @apply flex flex-col justify-center md:flex-row md:justify-start md:items-center;
+}
+
+.job-details {
+    @apply flex items-center;
+
+    .job-title {
+        @apply font-display text-lg leading-tight font-bold;
+    }
+
+    .job-type,
+    .job-position {
+        @apply flex items-center text-sm font-medium text-muted;
+    }
+}
+
+.job-tags {
+    @apply text-xs mt-3 flex gap-x-4 gap-y-1 flex-wrap items-center md:gap-2;
+
+    .job-tag {
+        @apply inline-block px-1.5 py-0.5 rounded-lg dark:border-2 dark:border-green-500 dark:text-gray-300 dark:bg-gray-700;
+
+        &.remote-tag {
+            @apply bg-green-100;
+        }
+
+        &.hybrid-tag {
+            @apply bg-green-100;
+        }
+
+        &.salary-tag {
+            @apply bg-purple-100;
+        }
+
+        &.location-tag {
+            @apply bg-teal-100;
+        }
+    }
+}
+
+.know-more-button {
+    @apply border-2 border-black p-2 rounded-lg;
 }
 </style>

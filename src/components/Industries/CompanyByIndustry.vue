@@ -90,7 +90,7 @@ const industryIcons = {
 
 <template>
     <DefaultLayout>
-        <div class="container mx-auto py-8 dark:bg-gray-800">
+        <div class="container mx-auto py-8 bg-white dark:bg-gray-800">
             <h2 class="text-2xl font-bold mb-12 text-center text-gray-600 dark:text-gray-100">
                 Browse Companies by Industry
             </h2>
@@ -131,7 +131,7 @@ const industryIcons = {
                     @click="loadMoreIndustries"
                     class="reset-button py-3 px-6 bg-cyan-900 text-gray-100 rounded-lg hover:bg-cyan-700 transition-colors duration-300 dark:bg-cyan-800 dark:hover:bg-cyan-700"
                 >
-                    See all industries
+                    See More industries
                 </button>
             </div>
         </div>

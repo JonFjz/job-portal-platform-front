@@ -10,45 +10,33 @@ const router = useRouter()
 const jobs = ref([])
 
 const fetchJobs = async (employerId) => {
-  try {
-    const response = await axios.get(`http://34.159.188.181:8080/api/JobPostings/by-employer/${employerId}`)
-    jobs.value = response.data.items || []
-  } catch (error) {
-    console.error('Error fetching jobs:', error)
-  }
+    try {
+        const response = await axios.get(
+            `http://34.159.188.181:8080/api/JobPostings/by-employer/${employerId}`
+        )
+        jobs.value = response.data.items || []
+    } catch (error) {
+        console.error('Error fetching jobs:', error)
+    }
 }
 
 onMounted(() => {
-  const employerId = route.params.employerId
-  fetchJobs(employerId)
+    const employerId = route.params.employerId
+    fetchJobs(employerId)
 })
-
-const navigateToJobDetail = (id) => {
-  router.push(`/jobs/${id}`)
-}
 </script>
-<style scoped>
-</style>
-
+<style scoped></style>
 
 <template>
-  <DefaultLayout>
-    <div class="container mx-auto py-8 dark:bg-gray-800">
-      <h2 class="text-2xl font-bold mb-8 text-center dark:text-gray-100">Jobs by Company</h2>
-      <div v-if="jobs.length" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <JobsCard
-          v-for="job in jobs"
-          :key="job.id"
-          :job="job"
-          @click="navigateToJobDetail(job.id)"
-        />
-      </div>
-      <div v-else class="text-center dark:text-gray-100 ">
-        <p>No jobs found for this company.</p>
-      </div>
-    </div>
-  </DefaultLayout>
+    <DefaultLayout>
+        <div class="container mx-auto py-8 bg-white text-gray-600 dark:bg-gray-800">
+            <h2 class="text-2xl font-bold mb-8 text-center dark:text-gray-100">Jobs by Company</h2>
+            <div v-if="jobs.length" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <JobsCard v-for="job in jobs" :key="job.id" :job="job" />
+            </div>
+            <div v-else class="text-center dark:text-gray-100">
+                <p>No jobs found for this company.</p>
+            </div>
+        </div>
+    </DefaultLayout>
 </template>
-
-
-

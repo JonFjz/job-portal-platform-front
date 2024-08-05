@@ -53,6 +53,7 @@ const handleApplication = async () => {
     }
 
     try {
+        toast.info('Submitting application...')
         const response = await axios.get(
             'http://34.159.188.181:8080/api/JobSeekers/profile',
             config
