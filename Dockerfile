@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm run build
 
+run npm run proxy-server
+
 RUN npm install -g http-server
 
 EXPOSE 8080
