@@ -16,6 +16,7 @@ import { parseJwt } from '@/utils/token'
 import CompanyByIndustry from '@/components/Industries/CompanyByIndustry.vue'
 import IndustryDetails from '@/components/Industries/IndustryDetails.vue'
 import JobsByEmployer from '@/components/Industries/JobsByEmployer.vue'
+import LearnView from '@/views/LearnView.vue'
 
 const routes = [
     {
@@ -103,6 +104,12 @@ const routes = [
         path: '/jobs-by-employer/:employerId',
         name: 'JobsByEmployer',
         component: JobsByEmployer,
+        props: true
+      },
+      {
+        path: '/learn',
+        name: 'learn',
+        component: LearnView,
         props: true
       }
 ]
