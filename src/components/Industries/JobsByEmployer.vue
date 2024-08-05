@@ -11,7 +11,7 @@ const jobs = ref([])
 
 const fetchJobs = async (employerId) => {
   try {
-    const response = await axios.get(`https://localhost:7136/api/JobPostings/by-employer/${employerId}`)
+    const response = await axios.get(`http://34.159.188.181:8080/api/JobPostings/by-employer/${employerId}`)
     jobs.value = response.data.items || []
   } catch (error) {
     console.error('Error fetching jobs:', error)

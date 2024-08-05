@@ -13,7 +13,7 @@ const totalIndustries = ref(0)
 
 const fetchIndustries = async (page = 1) => {
     try {
-        const response = await axios.get(`https://localhost:7136/api/Employers/industries`, {
+        const response = await axios.get(`http://34.159.188.181:8080/api/Employers/industries`, {
             params: {
                 pageNumber: page,
                 pageSize

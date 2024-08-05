@@ -11,7 +11,7 @@
   
   const fetchCompanies = async (industryName) => {
     try {
-      const response = await axios.get(`https://localhost:7136/api/Employers/by-industry?industry=${industryName}`)
+      const response = await axios.get(`http://34.159.188.181:8080/api/Employers/by-industry?industry=${industryName}`)
       companies.value = response.data.items || []
     } catch (error) {
       console.error('Error fetching companies:', error)
