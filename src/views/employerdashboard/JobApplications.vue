@@ -1,16 +1,18 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import { useToast } from 'vue-toast-notification' // Import the toast library
+import { useToast } from 'vue-toast-notification'
 import { useRoute } from 'vue-router'
 
 const $route = useRoute()
-
 const applications = ref([])
 
 const token = localStorage.getItem('token')
+const toast = useToast()
 
-const toast = useToast() // Initialize toast
+// Retrieve and parse the user object from localStorage
+const user = JSON.parse(localStorage.getItem('user'))
+console.log('user role:', user.role)
 
 const config = {
     headers: {
@@ -23,16 +25,14 @@ const config = {
 const fetchApplications = async () => {
     try {
         const response = await axios.get(
-            `https://localhost:7136/${$route.params.id}/applications`,
+            `http://34.159.188.181:8080/${$route.params.id}/applications`,
             config
         )
         console.log('response: ', response.data.items)
-        // response.data.items is the array of applications which are objects
         applications.value = response.data.items
-        console.log('applications: ', applications.value)
-        // 1: {id: 2, firstName: 'guri', lastName: 'sokoli'}
-
-        console.log('applications.value[0].firstName: ', applications.value[0].firstName)
+        if (applications.value.length === 0) {
+            toast.info('No job applications found')
+        }
     } catch (error) {
         console.error(error)
         toast.error('Failed to fetch applications')
@@ -42,13 +42,13 @@ const fetchApplications = async () => {
 const downloadResume = async (jobApplicationId, resumeOriginalName) => {
     try {
         const response = await axios.get(
-            `https://localhost:7136/api/resumes/${jobApplicationId}/download`,
+            `http://34.159.188.181:8080/api/resumes/${jobApplicationId}/download`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    Accept: 'application/pdf' // Specify expected file type
+                    Accept: 'application/pdf'
                 },
-                responseType: 'blob' // Important to handle binary data
+                responseType: 'blob'
             }
         )
 
@@ -74,11 +74,16 @@ onMounted(() => {
 
 <template>
     <div>
-        <div v-for="(application, index) in applications" :key="index" class="application-row">
-            <p>{{ application.firstName }} {{ application.lastName }}</p>
-            <button @click="downloadResume(application.id, application.resumeOriginalName)">
-                Download Resume
-            </button>
+        <div v-if="applications.length === 0">
+            No job applications
+        </div>
+        <div v-else>
+            <div v-for="(application, index) in applications" :key="index" class="application-row">
+                <p>{{ application.firstName }} {{ application.lastName }}</p>
+                <button @click="downloadResume(application.id, application.resumeOriginalName)">
+                    Download Resume
+                </button>
+            </div>
         </div>
     </div>
 </template>

@@ -29,7 +29,7 @@ const loginUser = async () => {
     loading.value = true // Set loading state to true
 
     try {
-        const response = await axios.post('https://localhost:7136/api/Auth0/login', {
+        const response = await axios.post('http://34.159.188.181:8080/api/Auth0/login', {
             email: email.value,
             password: password.value
         })

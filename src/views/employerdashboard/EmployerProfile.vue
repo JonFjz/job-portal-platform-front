@@ -68,7 +68,7 @@ onMounted(() => {
 const fetchProfile = async () => {
     console.log('Fetching profile...')
     try {
-        const response = await axios.get(`https://localhost:7136/api/Employers/profile`, config)
+        const response = await axios.get(`http://34.159.188.181:8080/api/Employers/profile`, config)
         profile.value = response.data
         // Map the industry string to its corresponding index
         profile.value.industry = industries.indexOf(profile.value.industry)
@@ -94,7 +94,7 @@ const updateProfile = async () => {
         }
 
         console.log('Updating profile with this information:', profileData)
-        await axios.put('https://localhost:7136/api/Employers/profile', profileData, config)
+        await axios.put('http://34.159.188.181:8080/api/Employers/profile', profileData, config)
         toast.success('Profile updated successfully!') // Show success toast
         await fetchProfile() // Refetch the profile after update
     } catch (error) {

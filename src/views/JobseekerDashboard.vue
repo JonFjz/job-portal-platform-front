@@ -43,7 +43,10 @@ const resumeFile = ref(null)
 
 const getJobSeekerProfile = async () => {
     try {
-        const response = await axios.get(`https://localhost:7136/api/JobSeekers/profile`, config)
+        const response = await axios.get(
+            `http://34.159.188.181:8080/api/JobSeekers/profile`,
+            config
+        )
         profile.value = response.data
         profile.value.dateOfBirth = profile.value.dateOfBirth.split('T')[0]
         hasResume.value = response.data.resumeUploaded || false // Adjust based on your API response
@@ -84,7 +87,7 @@ const updateProfile = async () => {
 
     try {
         const response = await axios.put(
-            'https://localhost:7136/api/JobSeekers',
+            'http://34.159.188.181:8080/api/JobSeekers',
             updatedProfile,
             config
         )
@@ -102,7 +105,7 @@ const updateProfile = async () => {
         console.log('Uploading resume:', resumeFile.value)
         try {
             const response = await axios.post(
-                'https://localhost:7136/api/Resumes/upload',
+                'http://34.159.188.181:8080/api/Resumes/upload',
                 resumeByteString,
                 {
                     headers: {
@@ -125,7 +128,7 @@ const updateProfile = async () => {
 
 const downloadOwnResume = async () => {
     try {
-        const response = await axios.get('https://localhost:7136/api/Resumes/download', {
+        const response = await axios.get('http://34.159.188.181:8080/api/Resumes/download', {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/pdf' // Specify expected file type
@@ -151,7 +154,7 @@ const downloadOwnResume = async () => {
 
 const deleteOwnResume = async () => {
     try {
-        const response = await axios.delete('https://localhost:7136/api/Resumes/delete', {
+        const response = await axios.delete('http://34.159.188.181:8080/api/Resumes/delete', {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: '*/*'
@@ -178,7 +181,7 @@ const handleFileChange = event => {
 
 const fetchJobApplications = async () => {
     try {
-        const response = await axios.get('https://localhost:7136/by-jobseeker', config)
+        const response = await axios.get('http://34.159.188.181:8080/by-jobseeker', config)
         applications.value = response.data.items // Store the applications
     } catch (error) {
         console.error('Error fetching job applications:', error)
@@ -187,11 +190,6 @@ const fetchJobApplications = async () => {
 }
 
 onMounted(() => {
-    console.log('token from local', token)
-    console.log('token from local', token)
-    console.log('token from local', token)
-    console.log('token from local', token)
-    console.log('token from local', token)
     console.log('token from local', token)
     getJobSeekerProfile()
     fetchJobApplications()

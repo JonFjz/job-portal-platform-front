@@ -10,6 +10,16 @@ const goBack = () => {
     router.push('/')
 }
 
+const token = localStorage.getItem('token')
+
+const config = {
+    headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: '*/*'
+    }
+}
+
 const showAddJobForm = ref(false)
 const isEditing = ref(false)
 const newJob = ref({
@@ -26,6 +36,7 @@ const newJob = ref({
 const employerId = ref('')
 const jobs = ref([])
 const loading = ref(false)
+const currentJobId = ref(null) // New ref to store the current job ID
 
 // Mapping objects for work levels and work types
 const workLevelMapping = {
@@ -46,14 +57,11 @@ const workTypeMapping = {
     4: 'Internship'
 }
 
-onMounted(() => {
-    employerId.value = localStorage.getItem('employerId')
-    console.log('Local Storage:', localStorage)
-    fetchJobs(1, 10)
-})
-
 const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
     const token = localStorage.getItem('token')
+    console.log('Token:', token)
+    console.log('Token:', token)
+    console.log('Token:', token)
 
     const config = {
         headers: {
@@ -64,10 +72,15 @@ const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
     }
 
     try {
+        console.log('Fetching jobs...')
         const response = await axios.get(
-            `https://localhost:7136/api/JobPostings/my-job-postings`,
+            `http://34.159.188.181:8080/api/JobPostings/my-job-postings?pageNumber=1&pageSize=10`,
             config
         )
+        console.log('Fetched jobs:', response.data)
+        console.log('Fetched jobs:', response.data)
+        console.log('Fetched jobs:', response.data)
+        console.log('Fetched jobs:', response.data)
         console.log('Fetched jobs:', response.data)
         jobs.value = response.data.items.map(job => ({
             ...job,
@@ -82,7 +95,7 @@ const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
 
 const handleSubmit = () => {
     if (isEditing.value) {
-        updateJob()
+        updateJob(currentJobId.value) // Pass the current job ID to the updateJob function
     } else {
         addJob()
     }
@@ -90,23 +103,12 @@ const handleSubmit = () => {
 
 const addJob = async () => {
     loading.value = true
-
-    const token = localStorage.getItem('token')
-
-    const config = {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            Accept: '*/*'
-        }
-    }
-
     const date = new Date(newJob.value.closingDate)
     newJob.value.closingDate = date.toISOString()
 
     try {
-        await axios.post(
-            'https://localhost:7136/api/JobPostings',
+        const response = await axios.post(
+            'http://34.159.188.181:8080/api/JobPostings',
             {
                 title: newJob.value.title,
                 closingDate: newJob.value.closingDate,
@@ -119,7 +121,10 @@ const addJob = async () => {
             },
             config
         )
-
+        console.log('Added job:', response)
+        console.log('Added job:', response)
+        console.log('Added job:', response)
+        console.log('Added job:', response)
         await fetchJobs()
         resetForm()
     } catch (error) {
@@ -135,13 +140,41 @@ const addJob = async () => {
 
 const editJob = job => {
     newJob.value = { ...job }
+    currentJobId.value = job.id // Store the current job ID
     isEditing.value = true
     showAddJobForm.value = true
 }
 
-const updateJob = async () => {
+const updateJob = async id => {
+    loading.value = true
+    const date = new Date(newJob.value.closingDate)
+    newJob.value.closingDate = date.toISOString()
     try {
-        await axios.put(`http://localhost:3000/jobs/${newJob.value.id}`, newJob.value)
+        console.log('Updating job:', {
+            id: id,
+            title: newJob.value.title,
+            closingDate: newJob.value.closingDate,
+            workType: parseInt(newJob.value.workType),
+            workLevel: parseInt(newJob.value.workLevel),
+            description: newJob.value.description,
+            responsibilities: newJob.value.responsibilities,
+            requiredSkills: newJob.value.requiredSkills,
+            notificationEmail: newJob.value.notificationEmail
+        })
+        await axios.put(
+            `http://34.159.188.181:8080/api/JobPostings/${id}`,
+            {
+                title: newJob.value.title,
+                closingDate: newJob.value.closingDate,
+                workType: parseInt(newJob.value.workType),
+                workLevel: parseInt(newJob.value.workLevel),
+                description: newJob.value.description,
+                responsibilities: newJob.value.responsibilities,
+                requiredSkills: newJob.value.requiredSkills,
+                notificationEmail: newJob.value.notificationEmail
+            },
+            config
+        )
         await fetchJobs()
         resetForm()
     } catch (error) {
@@ -163,7 +196,10 @@ const deleteJob = async id => {
     console.log('Deleting job:', id)
 
     try {
-        const response = await axios.delete(`https://localhost:7136/api/JobPostings/${id}`, config)
+        const response = await axios.delete(
+            `http://34.159.188.181:8080/api/JobPostings/${id}`,
+            config
+        )
         console.log('Delete response:', response)
         await fetchJobs()
     } catch (error) {
@@ -188,15 +224,23 @@ const resetForm = () => {
         requiredSkills: '',
         notificationEmail: ''
     }
+    currentJobId.value = null // Reset the current job ID
     isEditing.value = false
     showAddJobForm.value = false
 }
 
 const viewApplications = jobId => {
+    console.log('Viewing applications for job:', jobId)
     router.push(`/employer-dashboard/job-applications/${jobId}`)
 }
 
 const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
+
+onMounted(() => {
+    employerId.value = localStorage.getItem('employerId')
+    console.log('Local Storage:', localStorage)
+    fetchJobs(1, 10)
+})
 </script>
 
 <template>

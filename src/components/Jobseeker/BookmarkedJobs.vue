@@ -22,7 +22,7 @@ const jobDetails = ref([])
 
 const removeBookmark = async (jobId) => {
     try {
-        const response = await axios.delete(`https://localhost:7136/bookmarks/${jobId}`, config)
+        const response = await axios.delete(`http://34.159.188.181:8080/bookmarks/${jobId}`, config)
         console.log('Bookmark removed:', response)
         toast.open({
             message: `Job ID ${jobId} removed from bookmarks.`,
@@ -50,8 +50,9 @@ const removeBookmark = async (jobId) => {
 
 const fetchBookmarkedJobs = async () => {
     try {
-        const response = await axios.get('https://localhost:7136/bookmarked-jobs', config)
+        const response = await axios.get('http://34.159.188.181:8080/bookmarked-jobs', config)
         bookmarkedJobs.value = response.data
+        console.log('Bookmarked Jobs:', bookmarkedJobs.value)
         await fetchJobDetails()
     } catch (error) {
         console.error(error)
@@ -73,7 +74,7 @@ const fetchJobDetails = async () => {
             const jobId = bookmarkedJobs.value[i].jobPostingId
             try {
                 const response = await axios.get(
-                    `https://localhost:7136/api/JobPostings/${jobId}`,
+                    `http://34.159.188.181:8080/api/JobPostings/${jobId}`,
                     config
                 )
                 console.log(`Fetched job details for ID ${jobId}:`, response.data)
@@ -103,15 +104,6 @@ const fetchJobDetails = async () => {
 
 onMounted(() => {
     fetchBookmarkedJobs()
-    toast.open({
-        message: 'Welcome to the Bookmarked Jobs page!',
-        type: 'info',
-        position: 'top-right',
-        duration: 5000,
-        dismissible: true,
-        queue: false,
-        pauseOnHover: true
-    })
 })
 </script>
 

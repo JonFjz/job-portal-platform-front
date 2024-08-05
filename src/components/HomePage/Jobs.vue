@@ -10,9 +10,11 @@ const totalPages = ref(0)
 const isLoading = ref(false)
 
 // Function to fetch job details by ID
-const fetchJobById = async (id) => {
+const fetchJobById = async id => {
+    console.log(`Fetching job with ID ${id}`)
+    console.log(`Fetching job with ID ${id}`)
     try {
-        const response = await axios.get(`https://localhost:7136/api/JobPostings/${id}`)
+        const response = await axios.get(`http://34.159.188.181:8080/api/JobPostings/${id}`)
         console.log(`Fetched job with ID ${id}`, response.data)
         console.log(`Fetched job with ID ${id}`, response.data)
         console.log(`Fetched job with ID ${id}`, response.data)
@@ -31,16 +33,21 @@ const fetchJobs = async () => {
     jobs.value = []
     let id = 1 // Starting ID
     let jobFetchedCount = 0 // Count of successfully fetched jobs
+    let errorCount = 0 // Count of consecutive errors
 
     while (jobFetchedCount < pageSize) {
         const job = await fetchJobById(id)
         if (job) {
             jobs.value.push({ ...job, jobId: id }) // Ensure job.id exists
             jobFetchedCount++
-            id++
+            errorCount = 0 // Reset error count on success
         } else {
-            break // Stop fetching if an error occurs
+            errorCount++
+            if (errorCount >= 5) {
+                break // Stop fetching if 5 consecutive errors occur
+            }
         }
+        id++
     }
 
     // Calculate total pages based on fetched jobs

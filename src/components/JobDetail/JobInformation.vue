@@ -13,6 +13,8 @@ const jobDetails = ref(null)
 const reviews = ref([])
 const showReviewModal = ref(false)
 
+const user = JSON.parse(localStorage.getItem('user'))
+
 const token = localStorage.getItem('token')
 
 const config = {
@@ -27,7 +29,7 @@ const fetchJobDetails = async id => {
     id = Number(id)
     if (!id) return
     try {
-        const response = await axios.get(`https://localhost:7136/api/JobPostings/${id}`, config)
+        const response = await axios.get(`http://34.159.188.181:8080/api/JobPostings/${id}`, config)
         console.log('Job Details:', response.data)
         jobDetails.value = response.data
         // fetchReviews(jobDetails.value.company)
@@ -42,14 +44,25 @@ const formatDateString = dateString => {
 }
 
 const handleApplication = async () => {
+    console.log('User:', user.role)
     if (!token) {
-        toast.error('You need to login to apply for this job')
+        toast.error('You need to login as an Employer to apply for this job')
         return
     }
+    if (user.role == 'Employer') {
+        toast.error('You need to login as an Employer to apply for this job')
+        return
+    }
+
     try {
-        const response = await axios.get('https://localhost:7136/api/JobSeekers/profile', config)
+        const response = await axios.get(
+            'http://34.159.188.181:8080/api/JobSeekers/profile',
+            config
+        )
         console.log('Application response:', response.data.firstName)
         console.log('Application response:', response.data.lastName)
+        // check if user has already applied for this job
+
         try {
             const config = {
                 headers: {
@@ -58,7 +71,7 @@ const handleApplication = async () => {
                     Accept: '*/*'
                 }
             }
-            const resumeId = await axios.get('https://localhost:7136/api/resumes', config)
+            const resumeId = await axios.get('http://34.159.188.181:8080/api/resumes', config)
             const formData = new FormData()
             formData.append('JobPostingId', Number(jobId.value))
             formData.append('FirstName', response.data.firstName)
@@ -68,7 +81,7 @@ const handleApplication = async () => {
 
             console.log('Application data:', formData)
             try {
-                await axios.post('https://localhost:7136/apply', formData, config)
+                await axios.post('http://34.159.188.181:8080/apply', formData, config)
                 toast.success('Application submitted successfully')
             } catch (error) {
                 console.error('Application already submitted:', error)
@@ -113,6 +126,9 @@ const averageRating = computed(() => {
 onMounted(() => {
     // get the id from the link and console log it
     console.log('Job ID:', jobId.value)
+    // this returns {"name":"testing@gmail.com","role":"Employer"}
+    console.log('user role', user.role)
+    // this console logs the role of the user
     if (jobId.value) {
         fetchJobDetails(jobId.value)
     }
@@ -131,6 +147,10 @@ const openReviewModal = () => {
     // check if user is logged in
     if (!token) {
         toast.error('You need to login to leave a review')
+        return
+    }
+    if (user.role == 'Employer') {
+        toast.error('Employers cannot leave reviews')
         return
     }
 
@@ -242,15 +262,15 @@ const closeReviewModal = () => {
                 </div>
                 <div class="pl-0 md:pl-8 w-full md:w-2/3">
                     <h1 class="text-3xl">Job Description</h1>
-                    <p>
+                    <p class="line-clamp-3">
                         {{ jobDetails?.description || 'Nothing to show' }}
                     </p>
                     <h1 class="text-3xl">Job Responsibilities</h1>
-                    <p>
+                    <p class="line-clamp-3">
                         {{ jobDetails?.responsibilities || 'Nothing to show' }}
                     </p>
                     <h1 class="text-3xl">Job Required Skills</h1>
-                    <p>
+                    <p class="line-clamp-3">
                         {{ jobDetails?.requiredSkills || 'Nothing to show' }}
                     </p>
                 </div>

@@ -85,7 +85,7 @@ const registerUser = async () => {
 
         const endpoint =
             role.value === 'jobseeker' ? 'register-as-a-jobSeeker' : 'register-as-a-employer'
-        await axios.post(`https://localhost:7136/api/Auth0/${endpoint}`, {
+        await axios.post(`http://34.159.188.181:8080/api/Auth0/${endpoint}`, {
             ...(role.value === 'jobseeker'
                 ? {
                       firstName: firstName.value,

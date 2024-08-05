@@ -13,6 +13,8 @@ const props = defineProps({
 const isBookmarked = ref(false)
 const toast = useToast()
 
+const user = JSON.parse(localStorage.getItem('user'))
+
 const bookmarkedJobs = ref([])
 
 const token = localStorage.getItem('token')
@@ -28,6 +30,18 @@ const toggleBookmark = async () => {
     if (!token) {
         toast.open({
             message: 'Please log in to bookmark jobs.',
+            type: 'warning',
+            position: 'bottom-right',
+            duration: 3000,
+            dismissible: true,
+            queue: false,
+            pauseOnHover: true
+        })
+        return
+    }
+    if (user.role == 'Employer') {
+        toast.open({
+            message: 'Employers cannot bookmark jobs.',
             type: 'warning',
             position: 'bottom-right',
             duration: 3000,
@@ -57,20 +71,19 @@ const toggleBookmark = async () => {
     if (isBookmarked.value) {
         // add bookmark
         const response = await axios.post(
-            'https://localhost:7136/bookmarks',
+            'http://34.159.188.181:8080/bookmarks',
             {
                 jobPostingId: props.jobId
             },
             config
         )
-        console.log('Bookmark added:', response)
+        console.log('Bookmark added response:', response)
         const result = await response
-
-        console.log('Bookmark added:', result)
+        console.log('Bookmark added result:', result)
     } else {
         // remove bookmark
         const response = await axios.delete(
-            `https://localhost:7136/bookmarks/${props.jobId}`,
+            `http://34.159.188.181:8080/bookmarks/${props.jobId}`,
             config
         )
         console.log('Bookmark removed:', response)
@@ -86,7 +99,7 @@ const toggleBookmark = async () => {
 }
 const checkBookmarkStatus = async () => {
     try {
-        const response = await axios.get('https://localhost:7136/bookmarked-jobs', config)
+        const response = await axios.get('http://34.159.188.181:8080/bookmarked-jobs', config)
         bookmarkedJobs.value = response.data
 
         console.log('Bookmarked jobs:', bookmarkedJobs.value[0].jobPostingId)
