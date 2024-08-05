@@ -4,27 +4,22 @@ import HeaderDropdown from './HeaderDropdown.vue'
 import ThemeToggle from './HeaderThemeToggle.vue'
 import { RouterLink, useRouter } from 'vue-router'
 import VueJobsLogo from '../../assets/vueJobsLogo.svg'
-import { useToast } from 'vue-toast-notification' // Import the toast library
+import { useToast } from 'vue-toast-notification'
 
-const toast = useToast() // Initialize toast
+const toast = useToast()
 
-// Retrieve user information from local storage
 const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-// Get the router instance
 const router = useRouter()
 
-// Function to handle the "Post a job" button click
 const handlePostJobClick = () => {
-    console.log('user.role', user.role) // Debug log
-    if (user.role == 'employer') {
-        // Check if user is logged in
-        router.push('/employer-dashboard/') // Redirect to employer dashboard
+    if (user.role == 'Employer') {
+        router.push('/employer-dashboard/')
     } else if (user.role == 'JobSeeker') {
-        toast.warning('Only employers can post jobs') // Display a warning toast
+        toast.warning('Only employers can post jobs')
     } else {
-        toast.warning('Please log in as an employer to post a job') // Display a warning toast
-        router.push('/login') // Redirect to the login page
+        toast.warning('Please log in as an employer to post a job')
+        router.push('/login')
     }
 }
 </script>

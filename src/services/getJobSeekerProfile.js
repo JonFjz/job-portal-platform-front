@@ -1,12 +1,6 @@
 import axios from 'axios'
 
 export const getJobSeekerProfile = async () => {
-    console.log('Fetching job seeker profile...')
-    console.log('Fetching job seeker profile...')
-    console.log('Fetching job seeker profile...')
-    console.log('Fetching job seeker profile...')
-    console.log('Fetching job seeker profile...')
-    console.log('Fetching job seeker profile...')
     const token = localStorage.getItem('token')
     const config = {
         headers: {
@@ -16,12 +10,10 @@ export const getJobSeekerProfile = async () => {
         }
     }
     try {
-        const response = await axios.get('https://localhost:7163/api/JobSeekers/profile', config)
-        console.log('Job seeker profile:', response.data)
-        console.log('Job seeker profile:', response.data)
-        console.log('Job seeker profile:', response.data)
-        console.log('Job seeker profile:', response.data)
-        console.log('Job seeker profile:', response.data)
+        const response = await axios.get(
+            'http://34.159.188.181:8080/api/JobSeekers/profile',
+            config
+        )
         return response.data // Return the data from the response
     } catch (error) {
         console.error('Error fetching job seeker profile:', error)

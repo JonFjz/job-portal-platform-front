@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import { useToast } from 'vue-toast-notification' // Import the toast library
+import { useToast } from 'vue-toast-notification'
 
 const token = localStorage.getItem('token')
 
@@ -14,17 +14,17 @@ const config = {
 }
 
 const profile = ref({
-    email: '', // Include email in the profile for binding, but exclude during update
+    email: '',
     companyName: '',
     phone: '',
     founded: 0,
     companySize: 0,
     companyLink: '',
-    industry: 0, // Use numeric value for industry
+    industry: 0,
     description: ''
 })
 
-const toast = useToast() // Initialize toast
+const toast = useToast()
 
 const industries = [
     'Technology',
@@ -66,13 +66,10 @@ onMounted(() => {
 })
 
 const fetchProfile = async () => {
-    console.log('Fetching profile...')
     try {
         const response = await axios.get(`http://34.159.188.181:8080/api/Employers/profile`, config)
         profile.value = response.data
-        // Map the industry string to its corresponding index
         profile.value.industry = industries.indexOf(profile.value.industry)
-        console.log('Profile fetched successfully:', profile.value)
     } catch (error) {
         console.error('Error fetching profile:', error)
     }
@@ -80,26 +77,22 @@ const fetchProfile = async () => {
 
 const updateProfile = async () => {
     try {
-        // Create a new object without the id and email properties
         const { id, email, ...profileData } = profile.value
 
-        // Map the industry index to its corresponding number
         profileData.industry = Number(profileData.industry)
 
-        // Replace null or undefined values with empty strings
         for (const key in profileData) {
             if (profileData[key] === null || profileData[key] === undefined) {
                 profileData[key] = ''
             }
         }
 
-        console.log('Updating profile with this information:', profileData)
         await axios.put('http://34.159.188.181:8080/api/Employers/profile', profileData, config)
-        toast.success('Profile updated successfully!') // Show success toast
-        await fetchProfile() // Refetch the profile after update
+        toast.success('Profile updated successfully!')
+        await fetchProfile()
     } catch (error) {
         console.error('Error updating profile:', error)
-        toast.error('Failed to update profile.') // Show error toast
+        toast.error('Failed to update profile.')
     }
 }
 </script>

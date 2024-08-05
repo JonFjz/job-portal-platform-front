@@ -25,12 +25,11 @@ const config = {
     }
 }
 
-const fetchJobDetails = async id => {
+const fetchJobDetails = async (id) => {
     id = Number(id)
     if (!id) return
     try {
         const response = await axios.get(`http://34.159.188.181:8080/api/JobPostings/${id}`, config)
-        console.log('Job Details:', response.data)
         jobDetails.value = response.data
         // fetchReviews(jobDetails.value.company)
     } catch (error) {
@@ -38,13 +37,12 @@ const fetchJobDetails = async id => {
     }
 }
 
-const formatDateString = dateString => {
+const formatDateString = (dateString) => {
     if (!dateString) return 'Nothing to show'
     return dateString.split('T')[0]
 }
 
 const handleApplication = async () => {
-    console.log('User:', user.role)
     if (!token) {
         toast.error('You need to login as an Employer to apply for this job')
         return
@@ -59,9 +57,18 @@ const handleApplication = async () => {
             'http://34.159.188.181:8080/api/JobSeekers/profile',
             config
         )
-        console.log('Application response:', response.data.firstName)
-        console.log('Application response:', response.data.lastName)
         // check if user has already applied for this job
+        try {
+            const response = await axios.get(`http://34.159.188.181:8080/by-jobseeker`, config)
+            const jobIds = response.data.items.map((item) => item.jobPosting.id)
+            if (jobIds.includes(Number(jobId.value))) {
+                toast.warning('You have already applied for this job')
+                return
+            }
+        } catch (error) {
+            console.error('Error fetching applications:', error)
+            toast.error('Error fetching applications')
+        }
 
         try {
             const config = {
@@ -71,7 +78,13 @@ const handleApplication = async () => {
                     Accept: '*/*'
                 }
             }
-            const resumeId = await axios.get('http://34.159.188.181:8080/api/resumes', config)
+            const resumeId = await axios.get('http://34.159.188.181:8080/api/Resumes', config)
+
+            if (resumeId.data.length === 0) {
+                toast.error('You need to upload a resume to apply for this job')
+                return
+            }
+
             const formData = new FormData()
             formData.append('JobPostingId', Number(jobId.value))
             formData.append('FirstName', response.data.firstName)
@@ -79,7 +92,6 @@ const handleApplication = async () => {
             formData.append('ResumeId', resumeId.data.id)
             formData.append('NewResumeFile', null)
 
-            console.log('Application data:', formData)
             try {
                 await axios.post('http://34.159.188.181:8080/apply', formData, config)
                 toast.success('Application submitted successfully')
@@ -124,11 +136,6 @@ const averageRating = computed(() => {
 
 // if it's mounted fetch the jobs based on id
 onMounted(() => {
-    // get the id from the link and console log it
-    console.log('Job ID:', jobId.value)
-    // this returns {"name":"testing@gmail.com","role":"Employer"}
-    console.log('user role', user.role)
-    // this console logs the role of the user
     if (jobId.value) {
         fetchJobDetails(jobId.value)
     }
@@ -136,7 +143,7 @@ onMounted(() => {
 
 watch(
     () => route.params.id,
-    newId => {
+    (newId) => {
         jobId.value = newId
         fetchJobDetails(newId)
     }

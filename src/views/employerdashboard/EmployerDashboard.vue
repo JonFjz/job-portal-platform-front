@@ -36,9 +36,8 @@ const newJob = ref({
 const employerId = ref('')
 const jobs = ref([])
 const loading = ref(false)
-const currentJobId = ref(null) // New ref to store the current job ID
+const currentJobId = ref(null)
 
-// Mapping objects for work levels and work types
 const workLevelMapping = {
     0: 'Junior',
     1: 'Mid',
@@ -59,9 +58,6 @@ const workTypeMapping = {
 
 const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
     const token = localStorage.getItem('token')
-    console.log('Token:', token)
-    console.log('Token:', token)
-    console.log('Token:', token)
 
     const config = {
         headers: {
@@ -72,22 +68,15 @@ const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
     }
 
     try {
-        console.log('Fetching jobs...')
         const response = await axios.get(
             `http://34.159.188.181:8080/api/JobPostings/my-job-postings?pageNumber=1&pageSize=10`,
             config
         )
-        console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        console.log('Fetched jobs:', response.data)
-        jobs.value = response.data.items.map(job => ({
+        jobs.value = response.data.items.map((job) => ({
             ...job,
             workLevel: workLevelMapping[job.workLevel],
             workType: workTypeMapping[job.workType]
         }))
-        console.log('Fetched job:', JSON.stringify(jobs.value[2], null, 2))
     } catch (error) {
         console.error('Error fetching jobs:', error)
     }
@@ -95,7 +84,7 @@ const fetchJobs = async (pageNumber = 1, pageSize = 10) => {
 
 const handleSubmit = () => {
     if (isEditing.value) {
-        updateJob(currentJobId.value) // Pass the current job ID to the updateJob function
+        updateJob(currentJobId.value)
     } else {
         addJob()
     }
@@ -121,10 +110,6 @@ const addJob = async () => {
             },
             config
         )
-        console.log('Added job:', response)
-        console.log('Added job:', response)
-        console.log('Added job:', response)
-        console.log('Added job:', response)
         await fetchJobs()
         resetForm()
     } catch (error) {
@@ -138,29 +123,18 @@ const addJob = async () => {
     }
 }
 
-const editJob = job => {
+const editJob = (job) => {
     newJob.value = { ...job }
-    currentJobId.value = job.id // Store the current job ID
+    currentJobId.value = job.id
     isEditing.value = true
     showAddJobForm.value = true
 }
 
-const updateJob = async id => {
+const updateJob = async (id) => {
     loading.value = true
     const date = new Date(newJob.value.closingDate)
     newJob.value.closingDate = date.toISOString()
     try {
-        console.log('Updating job:', {
-            id: id,
-            title: newJob.value.title,
-            closingDate: newJob.value.closingDate,
-            workType: parseInt(newJob.value.workType),
-            workLevel: parseInt(newJob.value.workLevel),
-            description: newJob.value.description,
-            responsibilities: newJob.value.responsibilities,
-            requiredSkills: newJob.value.requiredSkills,
-            notificationEmail: newJob.value.notificationEmail
-        })
         await axios.put(
             `http://34.159.188.181:8080/api/JobPostings/${id}`,
             {
@@ -182,7 +156,7 @@ const updateJob = async id => {
     }
 }
 
-const deleteJob = async id => {
+const deleteJob = async (id) => {
     const token = localStorage.getItem('token')
 
     const config = {
@@ -192,8 +166,6 @@ const deleteJob = async id => {
             Accept: '*/*'
         }
     }
-
-    console.log('Deleting job:', id)
 
     try {
         const response = await axios.delete(
@@ -224,13 +196,12 @@ const resetForm = () => {
         requiredSkills: '',
         notificationEmail: ''
     }
-    currentJobId.value = null // Reset the current job ID
+    currentJobId.value = null
     isEditing.value = false
     showAddJobForm.value = false
 }
 
-const viewApplications = jobId => {
-    console.log('Viewing applications for job:', jobId)
+const viewApplications = (jobId) => {
     router.push(`/employer-dashboard/job-applications/${jobId}`)
 }
 
@@ -238,7 +209,6 @@ const isManageJobsPage = computed(() => route.path === '/employer-dashboard/')
 
 onMounted(() => {
     employerId.value = localStorage.getItem('employerId')
-    console.log('Local Storage:', localStorage)
     fetchJobs(1, 10)
 })
 </script>

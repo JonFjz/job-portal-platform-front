@@ -5,21 +5,13 @@ import axios from 'axios'
 
 const jobs = ref([])
 const currentPage = ref(1)
-const pageSize = 6 // Number of jobs per page
+const pageSize = 6
 const totalPages = ref(0)
 const isLoading = ref(false)
 
-// Function to fetch job details by ID
-const fetchJobById = async id => {
-    console.log(`Fetching job with ID ${id}`)
-    console.log(`Fetching job with ID ${id}`)
+const fetchJobById = async (id) => {
     try {
         const response = await axios.get(`http://34.159.188.181:8080/api/JobPostings/${id}`)
-        console.log(`Fetched job with ID ${id}`, response.data)
-        console.log(`Fetched job with ID ${id}`, response.data)
-        console.log(`Fetched job with ID ${id}`, response.data)
-        console.log(`Fetched job with ID ${id}`, response.data)
-        console.log(`Fetched job with ID ${id}`, response.data)
         return response.data
     } catch (error) {
         console.error(`Failed to fetch job with ID ${id}`, error)
@@ -27,40 +19,36 @@ const fetchJobById = async id => {
     }
 }
 
-// Function to fetch jobs for the current page until an error occurs
 const fetchJobs = async () => {
     isLoading.value = true
     jobs.value = []
-    let id = 1 // Starting ID
-    let jobFetchedCount = 0 // Count of successfully fetched jobs
-    let errorCount = 0 // Count of consecutive errors
+    let id = 1
+    let jobFetchedCount = 0
+    let errorCount = 0
 
     while (jobFetchedCount < pageSize) {
         const job = await fetchJobById(id)
         if (job) {
-            jobs.value.push({ ...job, jobId: id }) // Ensure job.id exists
+            jobs.value.push({ ...job, jobId: id })
             jobFetchedCount++
-            errorCount = 0 // Reset error count on success
+            errorCount = 0
         } else {
             errorCount++
             if (errorCount >= 5) {
-                break // Stop fetching if 5 consecutive errors occur
+                break
             }
         }
         id++
     }
 
-    // Calculate total pages based on fetched jobs
     totalPages.value = Math.ceil(jobs.value.length / pageSize)
     isLoading.value = false
 }
 
-// Initial fetch on component mount
 onMounted(() => {
     fetchJobs()
 })
 
-// Pagination functions
 const prevPage = () => {
     if (currentPage.value > 1) {
         currentPage.value--

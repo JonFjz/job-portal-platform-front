@@ -20,7 +20,6 @@ const username = computed(() => (user.value ? user.value.name : 'Guest'))
 const isAuthenticated = computed(() => !!user.value)
 const dashboardLink = computed(() => {
     if (user.value) {
-        console.log('User Role:', user.value.role)
         return user.value.role === 'JobSeeker' ? '/jobseeker-dashboard/' : '/employer-dashboard/'
     }
     return '/'
@@ -29,7 +28,6 @@ const dashboardLink = computed(() => {
 const router = useRouter()
 
 const logout = () => {
-    console.log('Logging out')
     localStorage.removeItem('user')
     localStorage.removeItem('token')
     user.value = null
@@ -42,7 +40,6 @@ const toggleDropdown = () => {
 }
 
 const navigateToDashboard = () => {
-    console.log('Navigating to:', dashboardLink.value)
     router.push(dashboardLink.value).catch((err) => console.error('Navigation Error:', err))
     dropdownVisible.value = false
 }

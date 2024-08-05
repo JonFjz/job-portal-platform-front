@@ -52,7 +52,6 @@ const toggleBookmark = async () => {
         return
     }
 
-    console.log('Toggling bookmark for jobId:', props.jobId) // Debug log
     isBookmarked.value = !isBookmarked.value
     const message = isBookmarked.value
         ? `Job ID ${props.jobId} bookmarked!`
@@ -77,23 +76,15 @@ const toggleBookmark = async () => {
             },
             config
         )
-        console.log('Bookmark added response:', response)
-        const result = await response
-        console.log('Bookmark added result:', result)
     } else {
         // remove bookmark
         const response = await axios.delete(
             `http://34.159.188.181:8080/bookmarks/${props.jobId}`,
             config
         )
-        console.log('Bookmark removed:', response)
-        console.log('Bookmark removed:', response)
-        console.log('Bookmark removed:', response)
-        console.log('Bookmark removed:', response)
-        console.log('Bookmark removed:', response)
         const data = await response
         if (data.length > 0) {
-            console.log('Bookmark removed:', data[0].id)
+            toast.success('Bookmark removed')
         }
     }
 }
@@ -102,35 +93,13 @@ const checkBookmarkStatus = async () => {
         const response = await axios.get('http://34.159.188.181:8080/bookmarked-jobs', config)
         bookmarkedJobs.value = response.data
 
-        console.log('Bookmarked jobs:', bookmarkedJobs.value[0].jobPostingId)
-        console.log('Bookmarked jobs:', bookmarkedJobs.value[1].jobPostingId)
-
-        isBookmarked.value = bookmarkedJobs.value.some(job => job.jobPostingId === props.jobId)
-        console.log('isBookmarked:', isBookmarked.value)
+        isBookmarked.value = bookmarkedJobs.value.some((job) => job.jobPostingId === props.jobId)
     } catch (error) {
-        // console.error(error)
         return
     }
 }
 onMounted(() => {
     checkBookmarkStatus()
-    //check if the job is already bookmarked
-
-    // log the token
-    // console.log('Token:', token)
-    // log the role
-    console.log('id:', props.jobId)
-    console.log('id:', props.jobId)
-    console.log('id:', props.jobId)
-    console.log('id:', props.jobId)
-    console.log('id:', props.jobId)
-    console.log('id:', props.jobId)
-    console.log('Role:', localStorage)
-
-    console.log('Checking bookmark status for jobId:', props.jobId) // Debug log
-    console.log('Checking bookmark status for jobId:', props.jobId) // Debug log
-    console.log('Checking bookmark status for jobId:', props.jobId) // Debug log
-    console.log('Checking bookmark status for jobId:', props.jobId) // Debug log
 })
 </script>
 

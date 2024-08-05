@@ -21,8 +21,8 @@ const user = ref({
     password: ''
 })
 const applications = ref([])
-const currentView = ref('settings') // default view
-const hasResume = ref(false) // Track if the user has a resume
+const currentView = ref('settings')
+const hasResume = ref(false)
 const token = localStorage.getItem('token')
 const config = {
     headers: {
@@ -32,7 +32,7 @@ const config = {
 }
 
 const profile = ref({
-    email: '', // Include email in the profile for binding, but exclude during update
+    email: '',
     phone: '',
     firstName: '',
     lastName: '',
@@ -49,14 +49,13 @@ const getJobSeekerProfile = async () => {
         )
         profile.value = response.data
         profile.value.dateOfBirth = profile.value.dateOfBirth.split('T')[0]
-        hasResume.value = response.data.resumeUploaded || false // Adjust based on your API response
+        hasResume.value = response.data.resumeUploaded || false
         if (hasResume.value) {
             toast.info(
                 'You have a resume uploaded. To change it, please delete the current one first.'
             )
         }
     } catch (error) {
-        console.log('Error:', error)
         router.push('/login')
         localStorage.removeItem('token')
     }
@@ -67,7 +66,6 @@ const formattedDateOfBirth = computed(() => {
 })
 
 const updateProfile = async () => {
-    console.log('Updating profile:', profile.value)
     const token = localStorage.getItem('token')
     const config = {
         headers: {
@@ -77,7 +75,6 @@ const updateProfile = async () => {
         }
     }
 
-    // Format the date for sending to the backend
     const formattedDateForBackend = `${formattedDateOfBirth.value}T00:00:00`
 
     const updatedProfile = {
@@ -97,12 +94,10 @@ const updateProfile = async () => {
         toast.error('Error updating profile')
     }
 
-    // In another request, send only the resume and the config, nothing else
     if (resumeFile.value) {
         const resumeByteString = new FormData()
-        resumeByteString.append('File', resumeFile.value) // Ensure 'File' matches backend expectation
+        resumeByteString.append('File', resumeFile.value)
 
-        console.log('Uploading resume:', resumeFile.value)
         try {
             const response = await axios.post(
                 'http://34.159.188.181:8080/api/Resumes/upload',
@@ -115,7 +110,6 @@ const updateProfile = async () => {
                     }
                 }
             )
-            console.log('Resume uploaded:', response.data)
             toast.success('Resume uploaded successfully')
         } catch (error) {
             console.error('Resume already existant, delete it then add another:', error)
@@ -131,17 +125,16 @@ const downloadOwnResume = async () => {
         const response = await axios.get('http://34.159.188.181:8080/api/Resumes/download', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: 'application/pdf' // Specify expected file type
+                Accept: 'application/pdf'
             },
-            responseType: 'blob' // Important to handle binary data
+            responseType: 'blob'
         })
 
-        // Create a blob link to download the file
         const blob = new Blob([response.data], { type: 'application/pdf' })
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'resume.pdf' // Set the filename
+        a.download = 'resume.pdf'
         document.body.appendChild(a)
         a.click()
         a.remove()
@@ -160,29 +153,28 @@ const deleteOwnResume = async () => {
                 Accept: '*/*'
             }
         })
-        console.log('Resume deleted:', response.data)
         toast.success('Resume deleted successfully')
-        hasResume.value = false // Update the state after deletion
+        hasResume.value = false
     } catch (error) {
         console.error('Error deleting resume:', error)
         toast.error('Error deleting resume')
     }
 }
 
-const handleFileChange = event => {
+const handleFileChange = (event) => {
     const file = event.target.files[0]
     if (file && file.type === 'application/pdf') {
         resumeFile.value = file
     } else {
         toast.error('Please upload a valid PDF file.')
-        resumeFile.value = null // Reset if the file type is invalid
+        resumeFile.value = null
     }
 }
 
 const fetchJobApplications = async () => {
     try {
         const response = await axios.get('http://34.159.188.181:8080/by-jobseeker', config)
-        applications.value = response.data.items // Store the applications
+        applications.value = response.data.items
     } catch (error) {
         console.error('Error fetching job applications:', error)
         toast.error('Error fetching job applications')
@@ -190,10 +182,9 @@ const fetchJobApplications = async () => {
 }
 
 onMounted(() => {
-    console.log('token from local', token)
     getJobSeekerProfile()
     fetchJobApplications()
-    userId.value = getUserId() // get the user ID dynamically
+    userId.value = getUserId()
 })
 </script>
 

@@ -4,17 +4,12 @@ import { useRouter } from 'vue-router'
 import Bookmark from '@/components/Bookmark.vue'
 
 const props = defineProps({
-    job: Object // Define the prop for job, which is an object containing id and title
+    job: Object
 })
-console.log('Job:', props.job) // Debug log
-console.log('Job ID:', props.job.jobId) // Debug log
 
-// Create a ref to manage the bookmark state
 const router = useRouter()
 
-// Method to navigate to the job detail page
 const navigateToJobDetail = () => {
-    console.log('Navigating to job detail:', props.job.jobId)
     router.push(`/jobs/${props.job.jobId}`)
 }
 </script>

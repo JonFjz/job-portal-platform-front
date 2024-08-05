@@ -13,7 +13,7 @@ const password = ref('')
 const confirmPassword = ref('')
 const companyName = ref('')
 const industry = ref('')
-const role = ref('jobseeker') // def to jobseeker
+const role = ref('jobseeker')
 const dropdownVisible = ref(false)
 const router = useRouter()
 const toast = useToast()
@@ -63,7 +63,6 @@ function validateFields() {
 
 const registerUser = async () => {
     try {
-        // console log for employer fields
         if (password.value !== confirmPassword.value) {
             toast.error('Passwords do not match')
             return
@@ -77,10 +76,8 @@ const registerUser = async () => {
             return
         }
 
-        console.log('qitu ka mrri')
-
         if (validateFields() == true) {
-            console.log('qitu ka mrri 2')
+            console.log('qitu ka mrri')
         }
 
         const endpoint =

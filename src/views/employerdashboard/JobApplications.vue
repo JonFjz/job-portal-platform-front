@@ -10,10 +10,6 @@ const applications = ref([])
 const token = localStorage.getItem('token')
 const toast = useToast()
 
-// Retrieve and parse the user object from localStorage
-const user = JSON.parse(localStorage.getItem('user'))
-console.log('user role:', user.role)
-
 const config = {
     headers: {
         Authorization: `Bearer ${token}`,
@@ -28,8 +24,10 @@ const fetchApplications = async () => {
             `http://34.159.188.181:8080/${$route.params.id}/applications`,
             config
         )
-        console.log('response: ', response.data.items)
-        applications.value = response.data.items
+        applications.value = response.data.items.map((application) => ({
+            ...application,
+            loading: false
+        }))
         if (applications.value.length === 0) {
             toast.info('No job applications found')
         }
@@ -39,24 +37,25 @@ const fetchApplications = async () => {
     }
 }
 
-const downloadResume = async (jobApplicationId, resumeOriginalName) => {
+const downloadResume = async (application) => {
+    application.loading = true
     try {
         const response = await axios.get(
-            `http://34.159.188.181:8080/api/resumes/${jobApplicationId}/download`,
+            `http://34.159.188.181:8080/api/Resumes/${application.id}/download`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    Accept: 'application/pdf'
+                    'Content-Type': 'application/pdf',
+                    Accept: '*/*'
                 },
                 responseType: 'blob'
             }
         )
-
         const blob = new Blob([response.data], { type: 'application/pdf' })
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = resumeOriginalName
+        a.download = application.resumeOriginalName
         document.body.appendChild(a)
         a.click()
         a.remove()
@@ -64,6 +63,23 @@ const downloadResume = async (jobApplicationId, resumeOriginalName) => {
     } catch (error) {
         console.error('Error downloading resume:', error)
         toast.error('Error downloading resume')
+    } finally {
+        application.loading = false
+    }
+}
+
+const updateStatus = async (applicationId, newStatus) => {
+    console.log('updating status:', applicationId, newStatus)
+    try {
+        await axios.put(
+            `http://34.159.188.181:8080/${applicationId}/update-status`,
+            newStatus,
+            config
+        )
+        toast.success('Status updated successfully')
+    } catch (error) {
+        console.error('Error updating status:', error)
+        toast.error('Failed to update status')
     }
 }
 
@@ -74,14 +90,44 @@ onMounted(() => {
 
 <template>
     <div>
-        <div v-if="applications.length === 0">
-            No job applications
-        </div>
+        <div v-if="applications.length === 0">No job applications</div>
         <div v-else>
             <div v-for="(application, index) in applications" :key="index" class="application-row">
-                <p>{{ application.firstName }} {{ application.lastName }}</p>
-                <button @click="downloadResume(application.id, application.resumeOriginalName)">
-                    Download Resume
+                <p>FirstName: {{ application.firstName }}</p>
+                <p>LastName: {{ application.lastName }}</p>
+                <p>Status: {{ application.jobApplicationStatus }}</p>
+
+                <button
+                    @click="downloadResume(application)"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-md"
+                >
+                    <span v-if="application.loading">Downloading...</span>
+                    <span v-else>Download Resume {{ application.resumeOriginalName }}</span>
+                </button>
+
+                <!-- dropdown to update status with these options that have these values:
+                0 Pending,
+                1 InterviewInvite,
+                2 Interviewed,
+                3 Accepted,
+                4 Rejected,
+                -->
+                <select
+                    v-model.number="application.jobApplicationStatus"
+                    class="p-2 border-2 border-black rounded-md"
+                >
+                    <option value="0">Pending</option>
+                    <option value="1">InterviewInvite</option>
+                    <option value="2">Interviewed</option>
+                    <option value="3">Accepted</option>
+                    <option value="4">Rejected</option>
+                </select>
+
+                <button
+                    @click="updateStatus(application.id, application.jobApplicationStatus)"
+                    class="bg-green-500 text-white px-4 py-2 rounded-md"
+                >
+                    Update Status
                 </button>
             </div>
         </div>

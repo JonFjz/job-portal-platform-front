@@ -9,7 +9,7 @@ const props = defineProps({
 })
 
 const router = useRouter()
-const currentPage = ref(1) // tracking current page
+const currentPage = ref(1)
 const jobsPerPage = 10
 
 const navigateToJobDetail = (id) => {
@@ -17,7 +17,7 @@ const navigateToJobDetail = (id) => {
 }
 
 const jobStore = useJobStore()
-await jobStore.fetchJobs() // Fetch jobs when the component mounts
+await jobStore.fetchJobs()
 
 // computed property to filter jobs based on props.filters
 const filteredJobs = computed(() => {

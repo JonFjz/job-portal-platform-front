@@ -7,12 +7,11 @@ import { parseJwt } from '@/utils/token'
 
 const email = ref('')
 const password = ref('')
-const loading = ref(false) // Add loading state
+const loading = ref(false)
 const router = useRouter()
 const toast = useToast()
 
 const loginUser = async () => {
-    // Validate inputs
     if (!email.value) {
         toast.error('Email is required')
         return
@@ -26,15 +25,13 @@ const loginUser = async () => {
         return
     }
 
-    loading.value = true // Set loading state to true
+    loading.value = true
 
     try {
         const response = await axios.post('http://34.159.188.181:8080/api/Auth0/login', {
             email: email.value,
             password: password.value
         })
-
-        console.log('API response:', response)
 
         if (!response.data.access_token) {
             throw new Error('Token is not present in the response')
@@ -57,15 +54,13 @@ const loginUser = async () => {
         localStorage.setItem('token', token)
         localStorage.setItem('user', JSON.stringify(user))
 
-        console.log('Stored user in localStorage:', localStorage.getItem('user'))
-
         const redirectPath = role === 'JobSeeker' ? '/jobseeker-dashboard/' : '/employer-dashboard/'
         router.push(redirectPath)
     } catch (error) {
         toast.error('Error logging in user')
         console.error('Error logging in user:', error)
     } finally {
-        loading.value = false // Set loading state to false
+        loading.value = false
     }
 }
 </script>
@@ -158,8 +153,8 @@ const loginUser = async () => {
 
 <style scoped>
 .loader {
-    border: 2px solid #f3f3f3; /* Light grey */
-    border-top: 2px solid #3498db; /* Blue */
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
     border-radius: 50%;
     width: 16px;
     height: 16px;

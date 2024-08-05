@@ -23,7 +23,6 @@ const jobDetails = ref([])
 const removeBookmark = async (jobId) => {
     try {
         const response = await axios.delete(`http://34.159.188.181:8080/bookmarks/${jobId}`, config)
-        console.log('Bookmark removed:', response)
         toast.open({
             message: `Job ID ${jobId} removed from bookmarks.`,
             type: 'warning',
@@ -52,7 +51,6 @@ const fetchBookmarkedJobs = async () => {
     try {
         const response = await axios.get('http://34.159.188.181:8080/bookmarked-jobs', config)
         bookmarkedJobs.value = response.data
-        console.log('Bookmarked Jobs:', bookmarkedJobs.value)
         await fetchJobDetails()
     } catch (error) {
         console.error(error)
@@ -77,13 +75,10 @@ const fetchJobDetails = async () => {
                     `http://34.159.188.181:8080/api/JobPostings/${jobId}`,
                     config
                 )
-                console.log(`Fetched job details for ID ${jobId}:`, response.data)
 
-                // Add jobId to the response data before pushing
+                // adds jobId to the response data before pushing
                 const jobWithId = { ...response.data, jobId }
-
                 jobDetails.value.push(jobWithId)
-                console.log('Job Details:', jobDetails.value)
             } catch (error) {
                 console.error(`Failed to fetch job details for ID ${jobId}:`, error)
             }
