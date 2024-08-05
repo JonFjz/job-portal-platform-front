@@ -7,10 +7,16 @@ import LoginView from '@/views/forms/LoginView.vue'
 import RegisterView from '@/views/forms/RegisterView.vue'
 import JobDetailView from '@/views/JobDetailView.vue'
 import JobsView from '@/views/JobsView.vue'
-import EmployerDashboard from '@/views/EmployerDashboard.vue'
+import EmployerDashboard from '@/views/employerdashboard/EmployerDashboard.vue'
 import JobseekerDashboard from '@/views/JobseekerDashboard.vue'
+import JobListings from '../views/employerdashboard/JobListings.vue'
+import JobApplications from '../views/employerdashboard/JobApplications.vue'
+import EmployerProfile from '../views/employerdashboard/EmployerProfile.vue'
+import { parseJwt } from '@/utils/token'
+import CompanyByIndustry from '@/components/Industries/CompanyByIndustry.vue'
+import IndustryDetails from '@/components/Industries/IndustryDetails.vue'
+import JobsByEmployer from '@/components/Industries/JobsByEmployer.vue'
 import LearnView from '@/views/LearnView.vue'
-import { parseJwt } from '@/utils/token'; 
 
 const routes = [
     {
@@ -31,11 +37,6 @@ const routes = [
         path: '/job-alert',
         name: 'job-alert',
         component: JobAlertView
-    },
-    {
-        path: '/hire-dev',
-        name: 'hire-dev',
-        component: HireDevView
     },
     {
         path: '/login',
@@ -69,18 +70,52 @@ const routes = [
         path: '/employer-dashboard',
         name: 'employer-dashboard',
         component: EmployerDashboard,
-        meta: { requiresAuth: true, role: 'employer' }
+        meta: { requiresAuth: true, role: 'Employer' },
+        children: [
+            {
+                path: 'profile',
+                name: 'employer-profile',
+                component: EmployerProfile
+            },
+            {
+                path: 'job-listings',
+                name: 'job-listings',
+                component: JobListings
+            },
+            {
+                path: 'job-applications/:id',
+                name: 'job-applications',
+                component: JobApplications
+            }
+        ]
     },
     {
+        path: '/companies-by-industry/',
+        name: 'CompanyByIndustry',
+        component: CompanyByIndustry
+      },
+      {
+        path: '/industry/:industryName',
+        name: 'IndustryDetails',
+        component: IndustryDetails,
+        props: true
+      },
+      {
+        path: '/jobs-by-employer/:employerId',
+        name: 'JobsByEmployer',
+        component: JobsByEmployer,
+        props: true
+      },
+      {
         path: '/learn',
         name: 'learn',
         component: LearnView,
-        meta: { requiresAuth: true, role: 'Employer' }
-    }
+        props: true
+      }
 ]
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL), 
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes
 })
 
@@ -92,13 +127,13 @@ router.beforeEach((to, from, next) => {
     // if a token exists, attempt to decode it
     if (token) {
         decodedToken = parseJwt(token)
-       // if it fails, remove the token from localStorage
+        // if it fails, remove the token from localStorage
 
         if (!decodedToken) {
             localStorage.removeItem('token')
         }
     }
-   // control if the user is authenticated based on the presence of a decoded token
+    // control if the user is authenticated based on the presence of a decoded token
     const isAuthenticated = !!decodedToken
     const requiresAuth = to.meta.requiresAuth
     const requiresGuest = to.meta.requiresGuest

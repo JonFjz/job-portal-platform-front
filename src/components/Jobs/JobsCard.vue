@@ -50,14 +50,14 @@ const bookmarkJob = (job) => {
         />
         <div class="flex flex-col justify-center md:flex-row md:justify-start md:items-center">
             <div class="flex items-center">
-                <div class="overflow-hidden w-12 h-12 md:w-12 md:h-12 rounded-xl">
+                <!-- <div class="overflow-hidden w-12 h-12 md:w-12 md:h-12 rounded-xl">
                     <img
                         :src="job.logo"
                         alt="Logo"
                         class="object-contain w-full h-full"
                         loading="lazy"
                     />
-                </div>
+                </div> -->
                 <div class="ml-3">
                     <div class="font-display text-lg leading-tight font-bold">{{ job.title }}</div>
                     <div class="flex items-center text-sm font-medium text-muted">

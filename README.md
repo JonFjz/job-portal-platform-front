@@ -1,6 +1,23 @@
 # job-portal-platform-front
 
-This template should help get you started developing with Vue 3 in Vite.
+This is the repository for the front-end of the job portal platform Group 7.
+
+Team members:
+
+-   [Jon Fejzullahu - DevOps]
+-   [Albione Rrudhani]
+-   [Drilon Thaqi]
+-   [Elojn Kastrati]
+-   [Guri Sokoli]
+-   [Lum Berisha]
+-   [Poema Polloshka]
+
+Default User Credentials:
+email: employer@job.com
+password: EmployerCompany@
+
+email: jobseeker@job.com
+password: JobSeeker@
 
 ## Recommended IDE Setup
 

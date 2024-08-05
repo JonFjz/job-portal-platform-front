@@ -4,15 +4,13 @@ import { useRouter } from 'vue-router'
 import Bookmark from '@/components/Bookmark.vue'
 
 const props = defineProps({
-    job: Object // Define the prop for job, which is an object containing id and title
+    job: Object
 })
 
-// Create a ref to manage the bookmark state
 const router = useRouter()
 
-// Method to navigate to the job detail page
 const navigateToJobDetail = () => {
-    router.push(`/jobs/${props.job.id}`)
+    router.push(`/jobs/${props.job.jobId}`)
 }
 </script>
 
@@ -36,7 +34,7 @@ const navigateToJobDetail = () => {
                     </div>
                 </div>
                 <!-- bookmark icon -->
-                <Bookmark :jobId="props.job.id" />
+                <Bookmark :jobId="props.job.jobId" />
             </div>
             <!-- tags -->
             <div class="flex items-center justify-start">

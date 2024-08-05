@@ -1,6 +1,5 @@
 <script setup>
-import { RouterLink, useRouter } from 'vue-router'
-// const router = useRouter()
+import { RouterLink } from 'vue-router'
 const props = defineProps({
     to: {
         required: true

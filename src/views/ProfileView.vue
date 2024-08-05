@@ -8,7 +8,7 @@ import ProfileLayout from '../layouts/ProfileLayout.vue'
     <ProfileLayout>
         <!-- <Sidebar> -->
 
-        <h1>This is a profile page (with ProfileLayout)</h1>
+        <!-- <h1>This is a profile page (with ProfileLayout)</h1> -->
 
         <!-- <MainContent> -->
     </ProfileLayout>

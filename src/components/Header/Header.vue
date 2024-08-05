@@ -2,8 +2,26 @@
 import HeaderLink from './HeaderLink.vue'
 import HeaderDropdown from './HeaderDropdown.vue'
 import ThemeToggle from './HeaderThemeToggle.vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import VueJobsLogo from '../../assets/vueJobsLogo.svg'
+import { useToast } from 'vue-toast-notification'
+
+const toast = useToast()
+
+const user = JSON.parse(localStorage.getItem('user') || '{}')
+
+const router = useRouter()
+
+const handlePostJobClick = () => {
+    if (user.role == 'Employer') {
+        router.push('/employer-dashboard/')
+    } else if (user.role == 'JobSeeker') {
+        toast.warning('Only employers can post jobs')
+    } else {
+        toast.warning('Please log in as an employer to post a job')
+        router.push('/login')
+    }
+}
 </script>
 
 <template>
@@ -37,14 +55,14 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
                 <div
                     class="text-xl text-center items-center gap-x-5 pt-4 md:gap-x-4 lg:text-lg lg:flex lg:pt-0 font-switzer"
                 >
-                    <HeaderLink
-                        to="/jobs"
-                        text="Jobs"
+                <HeaderLink
+                        to="/companies-by-industry"
+                        text="Companies"
                         class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                     />
                     <HeaderLink
-                        to="/hire-dev"
-                        text="Hire Vue.Js Developers"
+                        to="/jobs"
+                        text="Jobs"
                         class="py-2 lg:py-0 text-gray-600 dark:text-gray-300"
                     />
                     <HeaderLink
@@ -61,12 +79,9 @@ import VueJobsLogo from '../../assets/vueJobsLogo.svg'
                 <div
                     class="flex flex-row justify-center items-center gap-x-5 pt-4 text-gray-600 md:gap-x-4 lg:pt-0"
                 >
-                    <button class="bg-yellow-400 px-4 py-2 rounded-md">Post a job</button>
-                    <!-- login button with dissaper if logged in -->
-                    <!-- <button class="bg-slate-100 px-4 py-2 rounded-md focus:outline-none focus:ring-2">
-                    Login
-                </button> -->
-                    <!-- instead this will show witha dropdown -->
+                    <button class="bg-yellow-400 px-4 py-2 rounded-md" @click="handlePostJobClick">
+                        Post a job
+                    </button>
                     <HeaderDropdown />
                     <ThemeToggle />
                 </div>
