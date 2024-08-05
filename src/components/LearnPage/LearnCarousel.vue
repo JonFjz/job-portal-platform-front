@@ -1,6 +1,6 @@
 <script setup>
-    import CourseSlider from './CourseSlider.vue'
-    import SchoolSlider from './SchoolSlider.vue'
+import CourseSlider from './CourseSlider.vue'
+import SchoolSlider from './SchoolSlider.vue'
 </script>
 
 <template>
@@ -15,5 +15,5 @@
         </div>
     </div>
 </template>
-  
+
 <style scoped></style>
