@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue'
 import JobCard from './JobCard.vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const jobs = ref([])
 const currentPage = ref(1)
@@ -45,6 +48,10 @@ const fetchJobs = async () => {
     isLoading.value = false
 }
 
+const goToJobsPage = () => {
+    router.push({ name: 'jobs' })
+}
+
 onMounted(() => {
     fetchJobs()
 })
@@ -75,7 +82,10 @@ const nextPage = () => {
                 </h1>
             </div>
             <div>
-                <button class="hidden md:flex bg-green-600 text-white px-6 py-3 rounded-lg">
+                <button
+                    class="hidden md:flex bg-green-600 text-white px-6 py-3 rounded-lg"
+                    @click="goToJobsPage"
+                >
                     View All Jobs
                 </button>
             </div>

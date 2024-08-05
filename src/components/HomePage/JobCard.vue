@@ -2,6 +2,8 @@
 import { ref, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
 import Bookmark from '@/components/Bookmark.vue'
+// import { on } from 'tar/lib/read-entry'
+import { onMounted } from 'vue'
 
 const props = defineProps({
     job: Object
@@ -10,6 +12,10 @@ const props = defineProps({
 const router = useRouter()
 
 const navigateToJobDetail = () => {
+    console.log('props job', props.job)
+    console.log('props job', props.job)
+    console.log('props job', props.job)
+    console.log('props job', props.job)
     router.push(`/jobs/${props.job.jobId}`)
 }
 </script>
@@ -29,8 +35,8 @@ const navigateToJobDetail = () => {
                         class="h-12 rounded-lg"
                     />
                     <div class="flex flex-col text-gray-600 dark:text-gray-300 pl-4">
-                        <p>Company Name</p>
-                        <p>EmploymentType/Position</p>
+                        <p>{{ props.job.companyName }}</p>
+                        <p>{{ props.job.workLevel }} || {{ props.job.workType }}</p>
                     </div>
                 </div>
                 <!-- bookmark icon -->
@@ -59,8 +65,7 @@ const navigateToJobDetail = () => {
                     {{ props.job.title }}
                 </h1>
                 <h2 class="text-lg text-gray-500 dark:text-gray-300 line-clamp-3">
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maxime ratione minima
-                    vero asperiores ducimus similique deleniti libero magni reiciendis tempora.
+                    {{ props.job.responsibilities }}
                 </h2>
             </div>
             <!-- know more button and part/full-time -->
@@ -74,9 +79,9 @@ const navigateToJobDetail = () => {
                     </button>
                 </div>
                 <div>
-                    <span class="text-gray-600 dark:text-gray-300 align-middle"
-                        >Part/Full-Time</span
-                    >
+                    <span class="text-gray-600 dark:text-gray-300 align-middle">{{
+                        props.job.workType
+                    }}</span>
                 </div>
             </div>
         </div>
